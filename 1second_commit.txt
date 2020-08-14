@@ -1,1 +1,1 @@
-This is the second commit.
+This is the second time that I will use git status and git commit.
