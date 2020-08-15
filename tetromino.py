@@ -1,4 +1,4 @@
-import pygame, random, sys, time
+import pygame, random, sys, time, os
 
 FPS = 25
 WINDOWWIDTH, WINDOWHEIGHT = 640, 480
@@ -15,8 +15,8 @@ TOPMARGIN = WINDOWHEIGHT - (BOARDHEIGHT * BOXSIZE) - 5
 WHITE       =   (255,255,255)
 BLACK       =   (0,0,0)
 RED       =     (155, 0, 0)
-BLUE       =    (0, 155, 0)
-GREEN       =   (0, 0, 155)
+GREEN       =    (0, 155, 0)
+BLUE       =   (0, 0, 155)
 YELLOW      =   (155, 155, 0)
 GRAY        =   (185, 185, 185)
 LIGHTRED    =   (175, 0, 0)
@@ -29,7 +29,7 @@ BGCOLOR = BLACK
 TEXTCOLOR = WHITE
 TEXTSHADOW = GRAY
 COLORS = (BLUE, RED, GREEN, YELLOW)
-LIGHTCOLORS = (LIGHTBLUE, LIGHTGREEN, LIGHTRED, LIGHTYELLOW)
+LIGHTCOLORS = (LIGHTBLUE, LIGHTRED, LIGHTGREEN, LIGHTYELLOW)
 assert len(COLORS) == len(LIGHTCOLORS), 'Light colors not equal in size to colors'
 
 TEMPLATEWIDTH, TEMPLATEHEIGHT = 5, 5
@@ -147,6 +147,7 @@ SHAPES = {'S': S_TEMPLATE,
 def main():
     global FPSCLOCK, SCREEN, BASICFONT, BIGFONT
     pygame.init()
+    pygame.mixer.init()
     FPSCLOCK = pygame.time.Clock()
     SCREEN = pygame.display.set_mode((WINDOWWIDTH,WINDOWHEIGHT))
     BASICFONT = pygame.font.SysFont('freesansbold', 18)
@@ -156,9 +157,11 @@ def main():
     showTextScreen('Tetromino')
     while True:
         if random.randint(0,1) == 0:
-            pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisb.mid")
+            print(os.getcwd())
+            pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisb_online_converter.wav")
         else:
-            pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisc.mid")
+            pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisc_online_converter.wav")
+        pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1, 0.0)
         runGame()
         pygame.mixer.music.stop()
@@ -226,7 +229,7 @@ def runGame():
                     if not isValidPosition(board, fallingPiece):
                         fallingPiece['rotation'] = (fallingPiece['rotation'] -1 ) % len(SHAPES[fallingPiece['shape']])
                 
-                elif event.key in (pygame.K_q):
+                elif event.key == pygame.K_q:
                     fallingPiece['rotation'] = (fallingPiece['rotation'] - 1) % len(SHAPES[fallingPiece['shape']])
                     if not isValidPosition(board, fallingPiece):
                         fallingPiece['rotation'] = (fallingPiece['rotation'] +1 ) % len(SHAPES[fallingPiece['shape']])
@@ -347,5 +350,123 @@ def getNewPiece():
                 'color':random.randint(0, len(COLORS)-1)}
     return newPiece
 
+def addToBoard(board, piece):
+    # fill the board based on the piece's location, shape and rotation
+    for x in range(TEMPLATEWIDTH):
+        for y in range(TEMPLATEHEIGHT):
+            if SHAPES[piece['shape']][piece['rotation']][y][x] != BLANK: # BLANK is the string representation for a period
+                board[x+piece['x']][y+piece['y']] = piece['color']
 
+def getBlankBoard():
+    # create and returns a new blank board data structure
+    board = []
+    for _ in range(BOARDWIDTH):
+        board.append([BLANK] * BOARDHEIGHT)
+    return board
 
+def isOnBoard(x,y):
+    return (0 <= x < BOARDWIDTH) and y <BOARDHEIGHT
+
+def isValidPosition(board, piece, adjX = 0, adjY = 0):
+    # return True if the piece is within the board and not colliding
+    for x in range(TEMPLATEWIDTH):
+        for y in range(TEMPLATEHEIGHT):
+            isAboveBoard = y + piece['y'] + adjY < 0
+            if isAboveBoard or SHAPES[piece['shape']][piece['rotation']][y][x] == BLANK:
+                continue
+            if not isOnBoard(x + piece['x'] + adjX, y + piece['y'] + adjY):
+                return False
+            if board[x + piece['x'] + adjX][y + piece['y'] + adjY] != BLANK:
+                return False
+    return True
+
+def isCompleteLine(board, y):
+    # return true if the line is filled with boxes and there is no gaps
+    for x in range(BOARDWIDTH):
+        if board[x][y] == BLANK:
+            return False 
+    return True
+
+def removeCompleteLines(board):
+    # remove any complete lines and move everything above them down
+    # returns the number of complete lines
+    numLinesRemoved = 0
+    y = BOARDHEIGHT -1 # start y at the bottom of the board
+    while y >= 0:
+        if isCompleteLine(board, y):
+            # remove the line and pull the boxes above down 
+            for pullDownY in range(y,0 , -1):
+                for x in range(BOARDWIDTH):
+                    board[x][pullDownY] = board[x][pullDownY- 1]
+            # set very top line to blank
+            for x in range(BOARDWIDTH):
+                board[x][0] = BLANK
+            numLinesRemoved += 1
+            # note that on the next iteration of the loop y stays the same
+            # ensures that if the line above is also complete, it too can be removed 
+        else:
+            y -= 1 # move on to check the next row up
+    return numLinesRemoved
+
+def convertToPixelCoords(boxx, boxy):
+    # converts the board x y coordinates given to xy coordinates on the screen
+    return (XMARGIN + (boxx * BOXSIZE)), (TOPMARGIN + (boxy * BOXSIZE))
+
+def drawBox(boxx, boxy, color, pixelx = None, pixely = None):
+    # draws a single tetromino box (each shape has 4 boxes) at a specified location on the board
+    # or if pixelx and pixely (used for the next piece) 
+    if color == BLANK:
+        return
+    if None in (pixelx, pixely):
+        pixelx, pixely = convertToPixelCoords(boxx, boxy)
+    
+    pygame.draw.rect(SCREEN, COLORS[color], (pixelx +1, pixely +1, BOXSIZE-1, BOXSIZE-1))
+    pygame.draw.rect(SCREEN, LIGHTCOLORS[color], (pixelx +1, pixely +1, BOXSIZE-4, BOXSIZE-4))
+
+def drawBoard(board):
+    # draw the border around the board
+    pygame.draw.rect(SCREEN, BORDERCOLOR, (XMARGIN-3, TOPMARGIN-7, (BOARDWIDTH*BOXSIZE) +8, (BOARDHEIGHT*BOXSIZE)+8), 5)
+    # fill the background of the board
+    pygame.draw.rect(SCREEN, BGCOLOR, (XMARGIN, TOPMARGIN, BOXSIZE*BOARDWIDTH, BOXSIZE * BOARDHEIGHT))
+    # draw individual boxes on the board
+    for x in range(BOARDWIDTH):
+        for y in range(BOARDHEIGHT):
+            drawBox(x,y, board[x][y])
+
+def drawStatus(score, level):
+    # draw the score text
+    scoreRender = BASICFONT.render(f'Score: {score}', 1, TEXTCOLOR)
+    scoreRect = scoreRender.get_rect()
+    scoreRect.topleft = (WINDOWWIDTH -150,20)
+    SCREEN.blit(scoreRender, scoreRect)
+
+    # draw level text
+    levelRender = BASICFONT.render(f'Level: {level}',1, TEXTCOLOR)
+    levelRect = levelRender.get_rect()
+    levelRect.topleft = (WINDOWWIDTH - 150, 50)
+    SCREEN.blit(levelRender, levelRect)
+
+def drawPiece(piece, pixelx= None, pixely=None):
+    shapeToDraw = SHAPES[piece['shape']][piece['rotation']]
+    if None in (pixelx,pixely):
+        # use the location stored in the piece data structure
+        pixelx, pixely = convertToPixelCoords(piece['x'], piece['y'])
+    
+    # draw each of the blocks to make up the piece
+    for x in range(TEMPLATEWIDTH):
+        for y in range(TEMPLATEHEIGHT):
+            if shapeToDraw[y][x] != BLANK:
+                drawBox(None, None,piece['color'], pixelx + (x * BOXSIZE), pixely + (y * BOXSIZE))
+
+def drawNextPiece(piece):
+    # draw the next text
+    nextRender = BASICFONT.render('Next:', 1 , TEXTCOLOR)
+    nextRect = nextRender.get_rect()
+    nextRect.topleft = (WINDOWWIDTH - 120, 80)
+    SCREEN.blit(nextRender, nextRect)
+
+    # draw the next piece
+    drawPiece(piece, pixelx = WINDOWWIDTH -120, pixely = 100)
+
+if __name__ == '__main__':
+    main()
