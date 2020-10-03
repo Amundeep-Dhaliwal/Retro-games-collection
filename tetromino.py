@@ -15,8 +15,8 @@ TOPMARGIN = WINDOWHEIGHT - (BOARDHEIGHT * BOXSIZE) - 5
 WHITE       =   (255,255,255)
 BLACK       =   (0,0,0)
 RED       =     (155, 0, 0)
-GREEN       =    (0, 155, 0)
-BLUE       =   (0, 0, 155)
+GREEN       =   (0, 155, 0)
+BLUE       =    (0, 0, 155)
 YELLOW      =   (155, 155, 0)
 GRAY        =   (185, 185, 185)
 LIGHTRED    =   (175, 0, 0)
@@ -157,14 +157,16 @@ def main():
     showTextScreen('Tetromino')
     while True:
         if random.randint(0,1) == 0:
-            print(os.getcwd())
-            pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisb_online_converter.wav")
+            #print(os.getcwd())
+            pass
+            #pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisb_online_converter.wav")
         else:
-            pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisc_online_converter.wav")
-        pygame.mixer.music.set_volume(0.5)
-        pygame.mixer.music.play(-1, 0.0)
+            pass
+            #pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisc_online_converter.wav")
+        #pygame.mixer.music.set_volume(0.5)
+        #pygame.mixer.music.play(-1, 0.0)
         runGame()
-        pygame.mixer.music.stop()
+        #pygame.mixer.music.stop()
         showTextScreen('Game Over')
 
 def runGame():
@@ -179,14 +181,12 @@ def runGame():
     score = 0
     level, fallFreq = calculateLevelAndFallFreq(score)
 
-    fallingPiece = getNewPiece()
-    nextPiece = getNewPiece()
+    fallingPiece, nextPiece= getNewPiece(),getNewPiece()
 
     while True: # main game loop
         if fallingPiece == None:
             # no falling piece in play, generate a new piece
-            fallingPiece = nextPiece
-            nextPiece = getNewPiece()
+            fallingPiece, nextPiece= nextPiece, getNewPiece()
             lastFallTime = time.time() # reset lastFallTime
 
             if not isValidPosition(board, fallingPiece):
@@ -200,41 +200,41 @@ def runGame():
                     SCREEN.fill(BGCOLOR)
                     pygame.mixer.music.stop()
                     showTextScreen('Paused') # pause until key press
-                    pygame.mixer.music.play(-1, 0.0)
-                    lastFallTime = time.time()
+                    #pygame.mixer.music.play(-1, 0.0)
+                    #lastFallTime = time.time()
                     lastMoveDownTime = time.time()
                     lastMoveSidewaysTime = time.time()
-                elif event.key in (pygame.K_a, pygame.K_LEFT):
+                elif event.key in (pygame.K_s, pygame.K_LEFT):
                     movingLeft = False
-                elif event.key in (pygame.K_d, pygame.K_RIGHT):
+                elif event.key in (pygame.K_f, pygame.K_RIGHT):
                     movingRight = False
-                elif event.key in (pygame.K_s, pygame.K_DOWN):
+                elif event.key in (pygame.K_d, pygame.K_DOWN):
                     movingDown = False
             
             elif event.type == pygame.KEYDOWN:
                 # horizontal movement
-                if event.key in (pygame.K_a, pygame.K_LEFT) and isValidPosition(board, fallingPiece, adjX = -1):
+                if event.key in (pygame.K_s, pygame.K_LEFT) and isValidPosition(board, fallingPiece, adjX = -1):
                     fallingPiece['x'] -= 1
                     movingLeft = True
                     movingRight = False
                     lastMoveSidewaysTime = time.time()
-                elif event.key in (pygame.K_d, pygame.K_RIGHT) and isValidPosition(board, fallingPiece, adjX = 1):
+                elif event.key in (pygame.K_f, pygame.K_RIGHT) and isValidPosition(board, fallingPiece, adjX = 1):
                     fallingPiece['x'] += 1
                     movingRight = True
                     movingLeft = False
                     lastMoveSidewaysTime = time.time()
                 
-                elif event.key in (pygame.K_UP, pygame.K_w):
-                    fallingPiece['rotation'] = (fallingPiece['rotation']+1) % len(SHAPES[fallingPiece['shape']])
+                elif event.key in (pygame.K_UP, pygame.K_e):
+                    fallingPiece['rotation'] = (fallingPiece['rotation']+1) % len(SHAPES[fallingPiece['shape']]) #the modding causes the roll over to 0
                     if not isValidPosition(board, fallingPiece):
-                        fallingPiece['rotation'] = (fallingPiece['rotation'] -1 ) % len(SHAPES[fallingPiece['shape']])
+                        fallingPiece['rotation'] = (fallingPiece['rotation'] -1 ) % len(SHAPES[fallingPiece['shape']]) # modding -1 by 4 returns 3
                 
-                elif event.key == pygame.K_q:
+                elif event.key == pygame.K_w:
                     fallingPiece['rotation'] = (fallingPiece['rotation'] - 1) % len(SHAPES[fallingPiece['shape']])
                     if not isValidPosition(board, fallingPiece):
                         fallingPiece['rotation'] = (fallingPiece['rotation'] +1 ) % len(SHAPES[fallingPiece['shape']])
                 
-                elif event.key in (pygame.K_DOWN, pygame.K_s):
+                elif event.key in (pygame.K_DOWN, pygame.K_d):
                     movingDown = True
                     if isValidPosition(board, fallingPiece, adjY = 1):
                         fallingPiece['y'] += 1
@@ -248,7 +248,7 @@ def runGame():
                     for i in range(1, BOARDHEIGHT):
                         if not isValidPosition(board, fallingPiece, adjY = i):
                             break
-                    fallingPiece['y'] += i -1
+                    fallingPiece['y'] += i-1
         
         # handle moving the block because of the users input
         if (movingLeft or movingRight) and (time.time() -lastMoveSidewaysTime >HORIZONTALMOTION):
@@ -321,9 +321,9 @@ def showTextScreen(text):
     pressKeyRect.center = (int(WINDOWWIDTH/2), int(WINDOWHEIGHT/2)+100)
     SCREEN.blit(pressKeySurf, pressKeyRect)
 
-    while checkForKeyPress == None:
+    while checkForKeyPress() == None:
         pygame.display.update()
-        FPSCLOCK.tick(FPS) # what happens if we gave no arguements
+        FPSCLOCK.tick() # what happens if we gave no arguements
 
 def checkForQuit():
     for event in pygame.event.get(pygame.QUIT):
