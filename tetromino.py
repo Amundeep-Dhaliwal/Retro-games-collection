@@ -18,7 +18,7 @@ RED       =     (155, 0, 0)
 GREEN       =   (0, 155, 0)
 BLUE       =    (0, 0, 155)
 YELLOW      =   (155, 155, 0)
-GRAY        =   (185, 185, 185)
+GRAY        =   (112, 128, 144)
 LIGHTRED    =   (175, 0, 0)
 LIGHTGREEN    = (20, 175, 20)
 LIGHTBLUE    =  (20, 20, 175)
@@ -157,16 +157,13 @@ def main():
     showTextScreen('Tetromino')
     while True:
         if random.randint(0,1) == 0:
-            #print(os.getcwd())
-            pass
-            #pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisb_online_converter.wav")
+            pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisb_online_converter.wav")
         else:
-            pass
-            #pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisc_online_converter.wav")
-        #pygame.mixer.music.set_volume(0.5)
-        #pygame.mixer.music.play(-1, 0.0)
+            pygame.mixer.music.load(r"C:\Users\Amundeep\Music\Program sounds\tetrisc_online_converter.wav")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1, 0.0)
         runGame()
-        #pygame.mixer.music.stop()
+        pygame.mixer.music.stop()
         showTextScreen('Game Over')
 
 def runGame():
@@ -200,7 +197,7 @@ def runGame():
                     SCREEN.fill(BGCOLOR)
                     pygame.mixer.music.stop()
                     showTextScreen('Paused') # pause until key press
-                    #pygame.mixer.music.play(-1, 0.0)
+                    pygame.mixer.music.play(-1, 0.0)
                     #lastFallTime = time.time()
                     lastMoveDownTime = time.time()
                     lastMoveSidewaysTime = time.time()
@@ -337,12 +334,12 @@ def calculateLevelAndFallFreq(score):
     # based on the score, return the level the player is on and
     # how many seconds have passed until a falling piece falls one space 
     level = int(score/10) +1
-    fallFreq = 0.27 - (level * 0.02)
+    fallFreq = 0.30 - (level * 0.01)
     return level, fallFreq
 
 def getNewPiece():
     # returns a random piece in a random rotation and color
-    shape = random.choice(list(SHAPES.keys())) # is the keys from a dictionary already a list?
+    shape = random.choice(list(SHAPES.keys())) # random.choice only accepts lists!
     newPiece = {'shape':shape,
                 'rotation':random.randint(0, len(SHAPES[shape])-1),
                 'x':int(BOARDWIDTH/2)- int(TEMPLATEWIDTH/2), 
@@ -361,7 +358,7 @@ def getBlankBoard():
     # create and returns a new blank board data structure
     board = []
     for _ in range(BOARDWIDTH):
-        board.append([BLANK] * BOARDHEIGHT)
+        board.append([BLANK for _ in range(BOARDHEIGHT)])
     return board
 
 def isOnBoard(x,y):
@@ -397,7 +394,8 @@ def removeCompleteLines(board):
             # remove the line and pull the boxes above down 
             for pullDownY in range(y,0 , -1):
                 for x in range(BOARDWIDTH):
-                    board[x][pullDownY] = board[x][pullDownY- 1]
+                    board[x][pullDownY] = board[x][pullDownY-1]
+                    #pygame.display.update()
             # set very top line to blank
             for x in range(BOARDWIDTH):
                 board[x][0] = BLANK
@@ -424,11 +422,17 @@ def drawBox(boxx, boxy, color, pixelx = None, pixely = None):
     pygame.draw.rect(SCREEN, LIGHTCOLORS[color], (pixelx +1, pixely +1, BOXSIZE-4, BOXSIZE-4))
 
 def drawBoard(board):
-    # draw the border around the board
-    pygame.draw.rect(SCREEN, BORDERCOLOR, (XMARGIN-3, TOPMARGIN-7, (BOARDWIDTH*BOXSIZE) +8, (BOARDHEIGHT*BOXSIZE)+8), 5)
     # fill the background of the board
-    pygame.draw.rect(SCREEN, BGCOLOR, (XMARGIN, TOPMARGIN, BOXSIZE*BOARDWIDTH, BOXSIZE * BOARDHEIGHT))
+    #pygame.draw.rect(SCREEN, BGCOLOR, (XMARGIN, TOPMARGIN, BOXSIZE*BOARDWIDTH, BOXSIZE * BOARDHEIGHT))
     # draw individual boxes on the board
+    for y in range(TOPMARGIN,WINDOWHEIGHT,BOXSIZE):
+        pygame.draw.line(SCREEN, GRAY, (XMARGIN,y), (WINDOWWIDTH-XMARGIN,y))
+    
+    for x in range(XMARGIN,WINDOWWIDTH-XMARGIN,BOXSIZE):
+        pygame.draw.line(SCREEN, GRAY, (x,TOPMARGIN), (x,WINDOWHEIGHT))
+    # draw the border around the board
+    pygame.draw.rect(SCREEN, BORDERCOLOR, (XMARGIN-3, TOPMARGIN-3, (BOARDWIDTH*BOXSIZE) +4, (BOARDHEIGHT*BOXSIZE)+4), 8)
+    
     for x in range(BOARDWIDTH):
         for y in range(BOARDHEIGHT):
             drawBox(x,y, board[x][y])

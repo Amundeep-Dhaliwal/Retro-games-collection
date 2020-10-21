@@ -1,0 +1,4 @@
+This is the original commit, I will track all my changes now!
+
+This file is a precursor to the other files, there is a green vertical line on sublime text besides this sentence.
+Perhaps it is a indication for something?
