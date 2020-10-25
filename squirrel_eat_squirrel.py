@@ -125,7 +125,7 @@ def runGame():
                 squirrelObjs.append(makeNewSquirrel(cameraX, cameraY))
 
             playerCenterX = playerObj['x'] + int(playerObj['size']/2)
-            playerCenterY = playerObj['x'] + int(playerObj]['size']/2)
+            playerCenterY = playerObj['x'] + int(playerObj['size']/2)
             if (cameraX  + HALF_WINWID) - playerCenterX > CAMERASLACK:
                 cameraX = playerCenterX + CAMERASLACK - HALF_WINWID
             elif playerCenterX - (cameraX + HALF_WINWID) > CAMERASLACK:
@@ -274,3 +274,64 @@ def terminate():
     pygame.quit()
     sys.exit()
 
+def getBounceAmount(currentBounce, bounceRate, bounceHeight):
+    # returns the number of pixels to offset based on the bounce
+    # larger the bounceRate, slower the bounce
+    # currentBounce will always be less than bounceRate
+    return int(math.sin((math.pi/float(bounceRate))*currentBounce)*bounceHeight)
+
+def getRandomVelocity():
+    speed = random.randint(SQUIRRELMINSPEED, SQUIRRELMAXSPEED)
+    if random.randint(0,1) == 0:
+        return speed
+    else:
+        return -speed
+
+def getRandomOffCameraPos(cameraX, cameraY, objWidth, objHeight):
+    # Rect of the camera view
+    cameraRect = pygame.Rect(cameraX, cameraY, WINWID, WINHEI)
+    while True:
+        x = random.randint(cameraX - WINWID, cameraX + (2*WINWID))
+        y = random.randint(cameraY - WINHEI, cameraY + (2*WINHEI))
+        # create a Rect object with the random coordinates and use colliderect()
+        # to make sure the right edge isn't in the camera view
+        objRect = pygame.Rect(x,y,objWidth, objHeight)
+        if not objRect.colliderect(cameraRect):
+            return x, y
+
+def makeNewSquirrel(cameraX, cameraY):
+    sq = {}
+    generalSize = random.randint(5, 25)
+    multiplier = random.randint(1,3)
+    sq['width'] = (generalSize + random.randint(0,10)) * multiplier
+    sq['height'] = (generalSize + random.randint(0,10)) * multiplier
+    sq['x'], sq['y'] = getRandomOffCameraPos(cameraX, cameraY, sq['width'], sq['height'])
+    sq['moveX'] = getRandomVelocity()
+    sq['moveY'] = getRandomVelocity()
+    if sq['moveX'] < 0:
+        sq['surface'] = pygame.transform.scale(L_SQUIR_IMG, (sq['width'],sq['height']))
+    else:
+        sq['surface'] = pygame.transform.scale(R_SQUIR_IMG, (sq['width'], sq['height']))
+    sq['bounce'] = 0
+    sq['bounceRate'] = random.randint(10,18)
+    sq['bounceHeight'] = random.randint(10,50)
+    return sq
+
+def makeNewGrass(cameraX, cameraY):
+    gr = {} 
+    gr['grassImage'] = random.randint(0, len(GRASSIMAGES)- 1 )
+    gr['width'] = GRASSIMAGES[0].get_width()
+    gr['height'] = GRASSIMAGES[0].get_height()
+    gr['x'], gr['y'] = getRandomOffCameraPos(cameraX, cameraY, gr['width'], gr['height'])
+    return gr
+
+def isOutsideActiveArea(cameraX, cameraY, obj):
+    # returns False if cameraX and cameraY are more than a half window away from the edge
+    boundsLeftEdge = cameraX - WINWID
+    boundsTopEdge = cameraY - WINHEI
+    boundsRect = pygame.Rect(boundsLeftEdge, boundsTopEdge, WINWID*3, WINHEI*3)
+    objRect = pygame.Rect(obj['x'], obj['y'], obj['width'], obj['height'])
+    return not boundsRect.colliderect(objRect)
+
+if __name__ == '__main__':
+    main()
