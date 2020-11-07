@@ -2,9 +2,9 @@
 
 *.cfg
 
-Scripts/
+/Scripts
 
-Lib/
+/Lib
 
 /Include
 
