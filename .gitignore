@@ -1,0 +1,11 @@
+*.ipynb
+
+*.cfg
+
+Scripts/
+
+Lib/
+
+Include/
+
+commits/

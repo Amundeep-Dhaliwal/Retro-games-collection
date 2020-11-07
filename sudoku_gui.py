@@ -4,15 +4,15 @@ pygame.font.init()
 class Grid():
 
     board = [
-        [0,0,0,8,0,1,0,6,0],
-        [1,0,4,0,0,2,8,5,0],
-        [0,0,0,6,0,0,7,0,1],
-        [0,0,0,0,9,0,6,0,0],
-        [0,0,9,5,0,6,1,0,0],
-        [0,0,7,0,2,0,0,0,0],
-        [9,0,2,0,0,5,0,0,0],
-        [0,4,5,3,0,0,2,0,9],
-        [0,3,0,2,0,9,0,0,0]
+        [3,0,0,0,0,0,0,0,0],
+        [0,0,0,8,0,0,9,5,0],
+        [0,0,0,5,9,0,0,0,0],
+        [0,6,0,0,5,2,0,0,0],
+        [0,0,0,0,0,0,0,1,7],
+        [0,2,0,0,0,4,0,0,0],
+        [0,0,7,0,0,0,0,0,4],
+        [0,0,1,7,8,0,0,0,0],
+        [0,0,0,0,0,0,0,6,2]
         ]
 
     def __init__(self, rows, cols, width, height, screen):
@@ -48,7 +48,7 @@ class Grid():
         self.cubes[row][col].set_temp(value)
 
     def draw(self):
-        # Draw grid lines 
+        # Draw grid lines
         gap = self.width / 9
         for i in range(1,self.rows + 1):
             if i % 3 == 0:
@@ -123,7 +123,7 @@ class Grid():
                 self.cubes[row][col].draw_change(self.screen, True)
                 self.update_model()
                 pygame.display.update()
-                pygame.time.delay(1)
+                pygame.time.delay(0)
                 
                 if self.solve_gui():
                     return True
@@ -133,7 +133,7 @@ class Grid():
                 self.update_model()
                 self.cubes[row][col].draw_change(self.screen, False)
                 pygame.display.update()
-                pygame.time.delay(1)
+                pygame.time.delay(0)
         
         return False
 
