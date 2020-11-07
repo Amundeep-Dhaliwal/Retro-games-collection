@@ -119,22 +119,26 @@ def runGame():
         for i in range(len(squirrelObjs)-1,-1, -1):
             if isOutsideActiveArea(cameraX, cameraY, squirrelObjs[i]):
                 del squirrelObjs[i]
+        # when deleting items from a list, always iterate backwards to avoid the IndexError 
         
         while len(grassObjs) < NUMGRASS:
             grassObjs.append(makeNewGrass(cameraX,cameraY))
         while len(squirrelObjs) < NUMSQUIRRELS:
             squirrelObjs.append(makeNewSquirrel(cameraX, cameraY))
-
+        
         playerCenterX = playerObj['x'] + int(playerObj['size']/2)
-        playerCenterY = playerObj['x'] + int(playerObj['size']/2)
+        playerCenterY = playerObj['y'] + int(playerObj['size']/2)
+        print('playerX:',playerObj['x'],'playerY:', playerObj['y'], playerCenterX, playerCenterY)
+        print(cameraX,cameraY)
         if (cameraX  + HALF_WINWID) - playerCenterX > CAMERASLACK:
-            cameraX = playerCenterX + CAMERASLACK - HALF_WINWID
+            cameraX = playerCenterX + CAMERASLACK - HALF_WINWID # move the camera to the left 
+            #cameraX = playerCenterX 
         elif playerCenterX - (cameraX + HALF_WINWID) > CAMERASLACK:
-            cameraX = playerCenterX - CAMERASLACK - HALF_WINWID
+            cameraX = playerCenterX - CAMERASLACK - HALF_WINWID # move the camera to the right
         if (cameraY + HALF_WINHEI) - playerCenterY > CAMERASLACK:
-            cameraY = playerCenterY + CAMERASLACK - HALF_WINHEI
+            cameraY = playerCenterY + CAMERASLACK - HALF_WINHEI # move the camera up
         elif playerCenterY - (cameraY + HALF_WINHEI) > CAMERASLACK:
-            cameraY = playerCenterY - CAMERASLACK - HALF_WINHEI
+            cameraY = playerCenterY - CAMERASLACK - HALF_WINHEI # move the camera down
         
         # draw the green background
         DISPLAYSURF.fill(GRASSCOLOUR)
