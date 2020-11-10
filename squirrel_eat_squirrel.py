@@ -14,10 +14,10 @@ CAMERASLACK = 90 # how far from the center the squirrel can move without moving 
 MOVERATE = 9
 BOUNCERATE = 6 # smaller number, quicker the bounce
 BOUNCEHEIGHT = 30
-STARTSIZE = 25
+STARTSIZE = 25 # ? width and the height in pixels
 WINSIZE = 300 # how big the player needs to be before winning
 INVULNTIME = 2 # seconds the player is invulnerable after being hit
-GAMEOVERTIME = 4 # how long the gameover screen remains on screen 
+GAMEOVERTIME = 3 # how long the gameover screen remains on screen 
 MAXHEALTH = 3
 
 NUMGRASS = 80
@@ -75,8 +75,8 @@ def runGame():
     playerObj = {'surface':pygame.transform.scale(L_SQUIR_IMG,(STARTSIZE,STARTSIZE)),
                  'facing':LEFT,
                  'size':STARTSIZE,
-                 'x':HALF_WINWID,
-                 'y':HALF_WINHEI,
+                 'x':HALF_WINWID, # left top edge coordinate of the player in the game world
+                 'y':HALF_WINHEI, # top left edge coordinate of the pleyer in the game world
                  'bounce':0,
                  'health':MAXHEALTH}
 
@@ -100,7 +100,7 @@ def runGame():
             sObj['x'] += sObj['moveX']
             sObj['y'] += sObj['moveY']
             sObj['bounce'] += 1
-            if sObj['bounce'] > sObj['bounceRate']:
+            if sObj['bounce'] > sObj['bounceRate']: # a smaller sObj['bounceRate'] corresponds to a faster bounce
                 sObj['bounce'] = 0 # reset the bounce amount
             
             # random chance they change direction
@@ -126,22 +126,27 @@ def runGame():
         while len(squirrelObjs) < NUMSQUIRRELS:
             squirrelObjs.append(makeNewSquirrel(cameraX, cameraY))
         
+
         playerCenterX = playerObj['x'] + int(playerObj['size']/2)
         playerCenterY = playerObj['y'] + int(playerObj['size']/2)
-        print('playerX:',playerObj['x'],'playerY:', playerObj['y'], playerCenterX, playerCenterY)
-        print(cameraX,cameraY)
-        if (cameraX  + HALF_WINWID) - playerCenterX > CAMERASLACK:
-            cameraX = playerCenterX + CAMERASLACK - HALF_WINWID # move the camera to the left 
+
+        halfGameWorldX = cameraX + HALF_WINWID
+        halfGameWorldY = cameraY + HALF_WINHEI
+
+        if halfGameWorldX - playerCenterX > CAMERASLACK:
+            cameraX = playerCenterX  + CAMERASLACK  -HALF_WINWID # move the camera to the left 
             #cameraX = playerCenterX 
-        elif playerCenterX - (cameraX + HALF_WINWID) > CAMERASLACK:
+        elif playerCenterX - halfGameWorldX > CAMERASLACK:
             cameraX = playerCenterX - CAMERASLACK - HALF_WINWID # move the camera to the right
-        if (cameraY + HALF_WINHEI) - playerCenterY > CAMERASLACK:
+        
+        if halfGameWorldY - playerCenterY > CAMERASLACK:
             cameraY = playerCenterY + CAMERASLACK - HALF_WINHEI # move the camera up
-        elif playerCenterY - (cameraY + HALF_WINHEI) > CAMERASLACK:
+        elif playerCenterY - halfGameWorldY > CAMERASLACK:
             cameraY = playerCenterY - CAMERASLACK - HALF_WINHEI # move the camera down
         
         # draw the green background
         DISPLAYSURF.fill(GRASSCOLOUR)
+        # pygame.draw.rect(DISPLAYSURF,RED, (playerCenterX  + CAMERASLACK - HALF_WINWID,150, 180, 180))
 
         # draw all the grass objects on the screen
         for gObj in grassObjs:
@@ -153,6 +158,7 @@ def runGame():
             
         # draw the other squirrels 
         for sObj in squirrelObjs:
+            # getBounceAmount() returns the number of pixels the top value should be raised
             sObj['rect'] = pygame.Rect( (sObj['x'] - cameraX, 
                                             sObj['y'] - cameraY - getBounceAmount(sObj['bounce'], sObj['bounceRate'], sObj['bounceHeight']),
                                             sObj['width'],
@@ -160,7 +166,8 @@ def runGame():
             DISPLAYSURF.blit(sObj['surface'], sObj['rect'])
         
         # draw the player squirrel
-        flashIsOn = round(time.time(), 1) * 10 % 2 == 1
+        flashIsOn = round(time.time(), 1) * 10 % 2 == 1 # flashIsOn is set to True for one tenth of a second
+        # then for the next tenth of a second is set to False
         if not gameOverMode and not (invulnerableMode and flashIsOn):
             playerObj['rect'] = pygame.Rect((playerObj['x'] - cameraX, 
                                                 playerObj['y'] - cameraY - getBounceAmount(playerObj['bounce'], BOUNCERATE, BOUNCEHEIGHT),
@@ -212,7 +219,7 @@ def runGame():
                     terminate()
                 
         if not gameOverMode:
-            if moveLeft:
+            if moveLeft: # the if conditionals allow for the player to move in two directions simultaneously 
                 playerObj['x'] -= MOVERATE
             if moveRight:
                 playerObj['x'] += MOVERATE
@@ -228,7 +235,7 @@ def runGame():
                 playerObj['bounce'] = 0 # reset the bounce amount
 
             # check if the player has collided with any other squirrels
-            for i in range(len(squirrelObjs)-1, -1, -1):
+            for i in range(len(squirrelObjs)-1, -1, -1): # iterate in reverse when deleting items from a list
                 sqObj = squirrelObjs[i]
                 if 'rect' in sqObj and playerObj['rect'].colliderect(sqObj['rect']):
                     # a player an squirrel collision has occured
@@ -269,7 +276,7 @@ def runGame():
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
-def drawHealthMeter(currentHealth):
+def drawHealthMeter(currentHealth): # pygame.display.update() is not called in this function
     for i in range(currentHealth): 
         pygame.draw.rect(DISPLAYSURF, RED, (15,5+ (10 * MAXHEALTH) - i * 10, 20 , 10))
     for i in range(MAXHEALTH):
@@ -284,13 +291,14 @@ def getBounceAmount(currentBounce, bounceRate, bounceHeight):
     # larger the bounceRate, slower the bounce
     # currentBounce will always be less than bounceRate
     return int(math.sin((math.pi/float(bounceRate))*currentBounce)*bounceHeight)
+    # pi / 6 == 30 
 
-def getRandomVelocity():
+def getRandomVelocity(): 
     speed = random.randint(SQUIRRELMINSPEED, SQUIRRELMAXSPEED)
-    if random.randint(0,1) == 0:
-        return speed
+    if random.randint(0,1) == 0: 
+        return speed # right or doewn 
     else:
-        return -speed
+        return -speed # left or up
 
 def getRandomOffCameraPos(cameraX, cameraY, objWidth, objHeight):
     # Rect of the camera view
