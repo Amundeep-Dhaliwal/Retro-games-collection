@@ -2,9 +2,11 @@
 
 *.cfg
 
-/Scripts
+Scripts/
 
-/Lib
+Lib/
+
+site-packages/
 
 /Include
 
