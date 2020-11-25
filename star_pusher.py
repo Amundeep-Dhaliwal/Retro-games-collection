@@ -243,4 +243,148 @@ def decorateMap(mapObj, startxy):
                 mapObjCopy[x][y] = random.choice(list(OUTSIDEDECOMAPPING.keys()))
     return mapObjCopy
                 
+def isBlocked(mapObj, gameStateObj, x, y):
+    if isWall(mapObj, x,y):
+        return True
+    elif x < 0 or x >= len(mapObj) or y < 0 or y >= len(mapObj[x]):
+        return True # x and y are not on the map
+    elif (x, y) in gameStateObj['stars']:
+        return True
+    return False
 
+def makeMove(mapObj, gameStateObj, playerMoveTo):
+    playerx, playery = gameStateObj['player']
+    stars = gameStateObj['stars']
+    if playerMoveTo == UP:
+        xOffset = 0
+        yOffset = -1
+    elif playerMoveTo == RIGHT:
+        xOffset = 1
+        yOffset = 0
+    elif playerMoveTo == LEFT:
+        xOffset = -1
+        yOffset = 0
+    elif playerMoveTo == DOWN:
+        xOffset = 0
+        yOffset = 1
+    
+    if isWall(mapObj, playerx + xOffset , playery + yOffset):
+        return False
+    else:
+        if (playerx + xOffset,playery+yOffset) in stars:
+            if not isBlocked(mapObj, gameStateObj, playerx + (xOffset*2), playery + (yOffset*2)):
+                # move the star
+                ind = stars.index((playerx + xOffset, playery + yOffset))
+                stars[ind] = (stars[ind][0] + xOffset, stars[ind][1] + yOffset)
+            else:
+                return False
+        gameStateObj['player'] = (playerx + xOffset, playery + yOffset)
+        return True
+
+def startScreen():
+    titleRect = IMAGESDICT['title'].get_rect()
+    topCoord = 50
+    titleRect.top = topCoord
+    titleRect.centerx = HALF_WINWID
+    topCoord += titleRect.mapHeight
+
+    instructionText = ['Push the stars over the marks.', 
+                       'ESDF to move, arrow keys for camera control, P to change character.',
+                       'Space to reset level, Esc to quit.',
+                       'N for next level, B for the previous level.' 
+                        ]
+    DISPLAYSURF.fill(BGCOLOR)
+    DISPLAYSURF.blit(IMAGESDICT['title'], titleRect)
+    for i in range(len(instructionText)):
+        instSurf = BASICFONT.render(instructionText[i], 1, TEXTCOLOR)
+        instRect = instSurf.get_rect()
+        topCoord += 10
+        instRect.top = topCoord
+        instRect.centerx = HALF_WINWID
+        topCoord += instRect.height
+        DISPLAYSURF.blit(instSurf, instRect)
+    
+    while True: 
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                terminate()
+            else:
+                if event.key == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        terminate()
+                    return
+    
+        pygame.display.update()
+        FPSCLOCK.tick()
+
+def readLevelsFile(filename):
+    assert os.path.exist(filename), f'Cannot find the {filename} file'
+    mapFile = open(filename, 'r')
+    # Each level must end with a blank line
+    content = mapFile.readlines() + ['\r\n']
+    mapFile.close()
+
+    levels = []
+    levelNum = 0
+    mapTextLines = []
+    mapObj = []
+    for lineNum in range(len(content)):
+        line = content[lineNum].rstrip('\r\n')
+        if ';' in line:
+            line = line[:line.find(';')]
+        if line != '':
+            # this line is part of the map
+            mapTextLines.append(line)
+        elif line == '' and len(mapTextLines) > 0:
+            
+            maxWidth = -1
+            for i in range(len(mapTextLines)): # find the longest row in the map
+                if len(mapTextLines[i]) > maxWidth:
+                    maxWidth = len(mapTextLines[i])
+
+            for i in range(len(mapTextLines)): # add spaces to the ends of the shorter rows to ensure the map is rectangular
+                mapTextLines[i] += ' ' * (maxWidth - len(mapTextLines[i]))
+
+            # convert mapTextLines to a map object 
+            for x in range(len(mapTextLines[0])): 
+                mapObj.append([])
+            for y in range(len(mapTextLines)):
+                for x in range(maxWidth):
+                    mapObj[x].append(mapTextLines[y][x])
+            
+            startx = None
+            starty = None
+            goals = []
+            stars = []
+            for x in range(maxWidth):
+                for y in range(len(mapObj[x])):
+                    if mapObj[x][y] in ('@','+'):
+                        # @ is the player and + is the player & goal
+                        startx = x
+                        starty = y
+                    if mapObj[x][y] in ('.', '+', '*'):
+                        # . is goal and * is star & goal
+                        goals.append((x, y))
+                    if mapObj[x][y] in ('$', '*'):
+                        # $ is star
+                        stars.append((x,y))
+            assert startx != None and starty != None, f'Level {levelNum + 1} (around line {lineNum}) in {filename} is missing a "@" or "+" to mark the start point.'
+            assert len(goals) > 0, f'Level {levelNum + 1} (around line {lineNum}) in {filename} must have at least one goal.'
+            assert len(stars) >= len(goals), f'Level {levelNum + 1} (around line {lineNum}) in {filename} has {len(goals)} goals but only {len(stars)} stars.'
+
+            gameStateObj = {'player':(startx, starty),
+                            'stepCounter':0, 
+                            'stars':stars}
+            levelObj = {'width':maxWidth, 
+                        'height':len(mapObj), 
+                        'mapObj':mapObj, 
+                        'goals':goals,
+                        'startState':gameStateObj}
+            
+            levels.append(levelObj)
+
+            mapTextLines = []
+            mapObj = []
+            gameStateObj = {}
+            levelNum += 1
+    return levels
