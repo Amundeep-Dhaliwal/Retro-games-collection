@@ -17,8 +17,9 @@ CAM_MOVE_SPEED = 5
 
 OUTSIDE_DECORATION_PCT = 20
 
-BRIGHTBLUE =    (0,170,255)
-WHITE =         (255,255,255)
+BRIGHTBLUE = (0,170,255)
+WHITE =      (255,255,255)
+
 BGCOLOR = BRIGHTBLUE
 TEXTCOLOR = WHITE
 
@@ -388,3 +389,59 @@ def readLevelsFile(filename):
             gameStateObj = {}
             levelNum += 1
     return levels
+def floodFill(mapObj, x, y, oldCharacter, newCharacter):
+    if mapObj[x][y] == oldCharacter:
+        mapObj[x][y] = newCharacter
+    
+    if x < len(mapObj) - 1 and mapObj[x+1][y] == oldCharacter:
+        floodFill(mapObj, x+ 1, y, oldCharacter, newCharacter) # call right
+    if x > 0 and mapObj[x-1][y] == oldCharacter:
+        floodFill(mapObj, x - 1, y, oldCharacter, newCharacter) # call left
+    if y < len(mapObj[x]) - 1 and mapObj[x][y + 1] == oldCharacter:
+        floodFill(mapObj, x, y + 1, oldCharacter, newCharacter) # call down 
+    if y > 0 and mapObj[x][y - 1] == oldCharacter:
+        floodFill(mapObj, x, y - 1, oldCharacter, newCharacter) # call up
+
+def drawMap(mapObj, gameStateObj, goals):
+    mapSurfWidth = len(mapObj)*TILEWID
+    mapSurfHeight = (len(mapObj[0]) - 1) * (TILEHEI - TILEFLOORHEI) + TILEHEI
+    mapSurf = pygame.Surface((mapSurfWidth, mapSurfHeight))
+    mapSurf.fill(BGCOLOR)
+
+    for x in range(len(mapObj)):
+        for y in range(len(mapObj[x])):
+            spaceRect = pygame.Rect((x * TILEWID, y * (TILEHEI - TILEFLOORHEI), TILEWID, TILEHEI))
+            if mapObj[x][y] in TILEMAPPING:
+                baseTile = TILEMAPPING[mapObj[x][y]]
+            elif mapObj[x][y] in OUTSIDEDECOMAPPING:
+                baseTile = TILEMAPPING[' ']
+
+            mapSurf.blit(baseTile, spaceRect)
+
+            if mapObj[x][y] in OUTSIDEDECOMAPPING:
+                mapSurf.blit(OUTSIDEDECOMAPPING[mapObj[x][y]], spaceRect)                
+            elif (x,y) in gameStateObj['stars']:
+                if (x, y) in goals:
+                    mapSurf.blit(IMAGESDICT['covered goal'], spaceRect)
+                mapSurf.blit(IMAGESDICT['star'], spaceRect)
+            elif (x, y) in goals:
+                mapSurf.blit(IMAGESDICT['uncovered goal'], spaceRect)
+            if (x, y) == gameStateObj['player']:
+                mapSurf.blit(PLAYERIMAGES[currentImage], spaceRect)
+
+    return mapSurf
+
+def isLevelFinished(levelObj, gameStateObj):
+    for goal in levelObj['goals']:
+        if goal not in gameStateObj['stars']:
+            return False
+    return True
+
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+if __name__ == '__main__':
+    main()
+
+
