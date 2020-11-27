@@ -37,16 +37,16 @@ def main():
     DISPLAYSURF = pygame.display.set_mode((WINWID,WINHEI))
 
     pygame.display.set_caption('Star Pusher')
-    BASICFONT = pygame.font.sysfont('freesansbold', 18)
+    BASICFONT = pygame.font.SysFont('freesansbold', 18)
 
     IMAGESDICT ={ 
         'uncovered goal': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\RedSelector.png'),
         'covered goal': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Selector.png'),
         'star':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Star.png'),
-        'corner': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Wall Block Tall.png'),
-        'wall':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Wood Block Tall.png'),
-        'inside floor':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Plain Block.png'),
-        'outside floor':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Grass Block.png'),
+        'corner': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Wall_Block_Tall.png'),
+        'wall':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Wood_Block_Tall.png'),
+        'inside floor':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Plain_Block.png'),
+        'outside floor':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Grass_Block.png'),
         'title':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\star_title.png'),
         'solved':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\star_solved.png'),
         'princess':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\princess.png'),
@@ -107,11 +107,12 @@ def runLevel(levels, levelNum):
     mapObj = decorateMap(levelObj['mapObj'], levelObj['startState']['player'])
     gameStateObj = copy.deepcopy(levelObj['startState'])
     mapNeedsRedraw = bool(1) # call drawMap()
-    levelSurf = BASICFONT.render(f'Level {levelObj['levelNum']+1} of {totalNumOfLevels}', 1, TEXTCOLOR)
+    totalNumOfLevels = len(levels)
+    levelSurf = BASICFONT.render(f'Level {levelNum + 1} of {totalNumOfLevels}', 1, TEXTCOLOR)
     levelRect = levelSurf.get_rect()
     levelRect.bottomleft = (20,WINHEI - 35)
-    mapWidth = len(mapObj[0]) * TILEWIDTH
-    mapHeight = (len(mapObj) - 1) * (TILEHEIGHT - TILEFLOORHEIGHT) + TILEHEIGHT
+    mapWidth = len(mapObj[0]) * TILEWID
+    mapHeight = (len(mapObj) - 1) * (TILEHEI - TILEFLOORHEI) + TILEHEI
     MAX_CAM_X_PAN = abs(HALF_WINHEI - int(mapHeight/2)) + TILEWID
     MAX_CAM_Y_PAN = abs(HALF_WINWID - int(mapWidth/2)) + TILEHEI
 
@@ -201,7 +202,7 @@ def runLevel(levels, levelNum):
         DISPLAYSURF.blit(mapSurf, mapSurfRect)
 
         DISPLAYSURF.blit(levelSurf, mapSurfRect)
-        stepSurf = BASICFONT.render(f'Steps: {gameStateObj['stepCounter']}', True, TEXTCOLOR)
+        stepSurf = BASICFONT.render(f'Steps: {gameStateObj["stepCounter"]}', True, TEXTCOLOR)
         stepRect = stepSurf.get_rect()
         stepRect.bottomleft = (20, WINHEI - 10)
         DISPLAYSURF.blit(stepSurf, stepRect)
@@ -215,7 +216,7 @@ def runLevel(levels, levelNum):
                 return 'solved'
 
         pygame.display.update()
-        FPSCLOCK.tick()
+        FPSCLOCK.tick(FPS)
 
 def decorateMap(mapObj, startxy):
     startx, starty = startxy
@@ -253,6 +254,14 @@ def isBlocked(mapObj, gameStateObj, x, y):
         return True
     return False
 
+def isWall(mapObj, x, y):
+    if x < 0 or x >= len(mapObj) or y < 0 or y >= len(mapObj[x]):
+        return False
+    elif mapObj[x][y] in ('#', 'x'):
+        return True
+    return False
+
+
 def makeMove(mapObj, gameStateObj, playerMoveTo):
     playerx, playery = gameStateObj['player']
     stars = gameStateObj['stars']
@@ -287,7 +296,7 @@ def startScreen():
     topCoord = 50
     titleRect.top = topCoord
     titleRect.centerx = HALF_WINWID
-    topCoord += titleRect.mapHeight
+    topCoord += titleRect.height
 
     instructionText = ['Push the stars over the marks.', 
                        'ESDF to move, arrow keys for camera control, P to change character.',
@@ -310,16 +319,16 @@ def startScreen():
             if event.type == QUIT:
                 terminate()
             else:
-                if event.key == KEYDOWN:
+                if event.type == KEYDOWN:
                     if event.key == K_ESCAPE:
                         terminate()
                     return
     
         pygame.display.update()
-        FPSCLOCK.tick()
+        FPSCLOCK.tick(FPS)
 
 def readLevelsFile(filename):
-    assert os.path.exist(filename), f'Cannot find the {filename} file'
+    assert os.path.exists(filename), f'Cannot find the {filename} file'
     mapFile = open(filename, 'r')
     # Each level must end with a blank line
     content = mapFile.readlines() + ['\r\n']
