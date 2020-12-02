@@ -91,13 +91,10 @@ def main():
     while True:
         result = runLevel(levels, currentLevelIndex)
         if result in ('solved', 'next'):
-            currentLevelIndex += 1
-            if currentLevelIndex >= len(levels):
-                currentLevelIndex = 0
+            #print('incrementing')
+            currentLevelIndex = (currentLevelIndex + 1) % len(levels)
         elif result == 'back':
-            currentLevelIndex -=1
-            if currentLevelIndex < 0:
-                currentLevelIndex = len(levels) - 1
+            currentLevelIndex = (currentLevelIndex -1) % len(levels)
         elif result == 'reset':
             pass
 
@@ -105,14 +102,17 @@ def runLevel(levels, levelNum):
     global currentImage
     levelObj = levels[levelNum] # !
     mapObj = decorateMap(levelObj['mapObj'], levelObj['startState']['player'])
-    gameStateObj = copy.deepcopy(levelObj['startState'])
+    gameStateObj = copy.deepcopy(levelObj['startState']) # a deep copy is required for the player to make changes
+    
     mapNeedsRedraw = bool(1) # call drawMap()
     totalNumOfLevels = len(levels)
     levelSurf = BASICFONT.render(f'Level {levelNum + 1} of {totalNumOfLevels}', 1, TEXTCOLOR)
     levelRect = levelSurf.get_rect()
     levelRect.bottomleft = (20,WINHEI - 35)
-    mapWidth = len(mapObj[0]) * TILEWID
-    mapHeight = (len(mapObj) - 1) * (TILEHEI - TILEFLOORHEI) + TILEHEI
+
+    mapWidth = len(mapObj) * TILEWID
+    mapHeight = (len(mapObj[0]) - 1) * (TILEHEI - TILEFLOORHEI) + TILEHEI
+
     MAX_CAM_X_PAN = abs(HALF_WINHEI - int(mapHeight/2)) + TILEWID
     MAX_CAM_Y_PAN = abs(HALF_WINWID - int(mapWidth/2)) + TILEHEI
 
@@ -120,6 +120,7 @@ def runLevel(levels, levelNum):
 
     cameraOffsetX = 0
     cameraOffsetY = 0
+
     cameraUp = False 
     cameraDown = False
     cameraRight = False
@@ -134,7 +135,7 @@ def runLevel(levels, levelNum):
                 terminate()
 
             elif event.type == KEYDOWN:
-                keyPressed = True
+                keyPressed = bool(1)
                 if event.key ==  K_s:
                     playerMoveTo = LEFT
                 elif event.key == K_f:
@@ -153,7 +154,12 @@ def runLevel(levels, levelNum):
                 elif event.key == K_DOWN:
                     cameraDown = bool(1)
             
-                elif event.key == K_SPACE:
+                elif event.key == K_n:
+                    return 'next'
+                elif event.key == K_b:
+                    return 'back'
+
+                elif event.key == K_SPACE and not levelIsComplete:
                     return 'reset'
                 elif event.key == K_p:
                     currentImage = (currentImage + 1) % len(PLAYERIMAGES)
@@ -162,13 +168,13 @@ def runLevel(levels, levelNum):
             elif event.type == KEYUP:
                 if event.key == K_ESCAPE:
                     terminate()
-                elif event.key == K_s:
+                elif event.key == K_LEFT:
                     cameraLeft = bool(0)
-                elif event.key == K_d:
+                elif event.key == K_DOWN:
                     cameraDown = bool(0)
-                elif event.key == K_e:
+                elif event.key == K_UP:
                     cameraUp = bool(0)
-                elif event.key == K_f:
+                elif event.key == K_RIGHT:
                     cameraRight = bool(0)
 
         if playerMoveTo != None and not levelIsComplete:
@@ -191,9 +197,10 @@ def runLevel(levels, levelNum):
             cameraOffsetY += CAM_MOVE_SPEED
         elif cameraDown and cameraOffsetY > -MAX_CAM_X_PAN:
             cameraOffsetY -= CAM_MOVE_SPEED
-        elif cameraRight and cameraOffsetX > MAX_CAM_Y_PAN:
+        
+        if cameraLeft and cameraOffsetX < MAX_CAM_Y_PAN:
             cameraOffsetX += CAM_MOVE_SPEED
-        elif cameraLeft and cameraOffsetX > -MAX_CAM_Y_PAN:
+        elif cameraRight and cameraOffsetX > -MAX_CAM_Y_PAN:
             cameraOffsetX -= CAM_MOVE_SPEED
         
         mapSurfRect = mapSurf.get_rect()
@@ -201,7 +208,7 @@ def runLevel(levels, levelNum):
 
         DISPLAYSURF.blit(mapSurf, mapSurfRect)
 
-        DISPLAYSURF.blit(levelSurf, mapSurfRect)
+        DISPLAYSURF.blit(levelSurf, levelRect)
         stepSurf = BASICFONT.render(f'Steps: {gameStateObj["stepCounter"]}', True, TEXTCOLOR)
         stepRect = stepSurf.get_rect()
         stepRect.bottomleft = (20, WINHEI - 10)
@@ -217,6 +224,13 @@ def runLevel(levels, levelNum):
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+
+def isWall(mapObj, x, y):
+    if x < 0 or x >= len(mapObj) or y < 0 or y >= len(mapObj[x]):
+        return False
+    elif mapObj[x][y] in ('#', 'x'):
+        return True
+    return False
 
 def decorateMap(mapObj, startxy):
     startx, starty = startxy
@@ -253,14 +267,6 @@ def isBlocked(mapObj, gameStateObj, x, y):
     elif (x, y) in gameStateObj['stars']:
         return True
     return False
-
-def isWall(mapObj, x, y):
-    if x < 0 or x >= len(mapObj) or y < 0 or y >= len(mapObj[x]):
-        return False
-    elif mapObj[x][y] in ('#', 'x'):
-        return True
-    return False
-
 
 def makeMove(mapObj, gameStateObj, playerMoveTo):
     playerx, playery = gameStateObj['player']
