@@ -5,6 +5,7 @@ windowwidth, windowheight = 640, 480
 boardwidth, boardheight = 4,4 # boardwidth = number of columns, boardheight = number of rows 
 TILESIZE = 80
 FPS = 30
+TILESLIDES = 60
 
 BLACK =         (0,0,0)
 WHITE =         (255,255,255)
@@ -40,7 +41,7 @@ def main():
     new_screen, new_rect = makeText('New Game', WHITE, GREEN, fontsize, windowheight-70)
     solve_screen, solve_rect= makeText('Solve', WHITE, GREEN, fontsize, windowheight -40)
 
-    mainBoard, solutionSeq = generateNewPuzzle(8,0) # 80 random slide moves performed on the ordered board
+    mainBoard, solutionSeq = generateNewPuzzle(TILESLIDES,0) # 80 random slide moves performed on the ordered board
     solvedboard = getStartingBoard() # a solved board is the same as the board in a start state (ordered)
     allMoves = list() # list of moves made from the solved configuration
     start_time = time.time()

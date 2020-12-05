@@ -28,7 +28,7 @@ for i in range(7):
 
 # game variable
 hangman_status = 0
-words = ['HARDEEP', 'MOHINDER', 'JAVASCRIPT', 'DHALIWAL', 'PUNJABI']
+words = ['COTTON']
 word = random.choice(words)
 guessed = [] 
 
