@@ -37,7 +37,7 @@ def main():
     DISPLAYSURF = pygame.display.set_mode((WINWID,WINHEI))
 
     pygame.display.set_caption('Star Pusher')
-    BASICFONT = pygame.font.SysFont('freesansbold', 18)
+    BASICFONT = pygame.font.SysFont('freesansbold', 34)
 
     IMAGESDICT ={ 
         'uncovered goal': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\RedSelector.png'),
@@ -227,12 +227,16 @@ def runLevel(levels, levelNum):
 
 def isWall(mapObj, x, y):
     if x < 0 or x >= len(mapObj) or y < 0 or y >= len(mapObj[x]):
-        return False
+    #if (0 < x <= len(mapObj)) or (0 < y <= len(mapObj[x])):
+        return False # x and y are not on the map
     elif mapObj[x][y] in ('#', 'x'):
         return True
     return False
 
 def decorateMap(mapObj, startxy):
+    # walls that are corners are turned into corner pieces
+    # outside/inside tile distinction is made
+    # random tree/rock decorations are placed on the outside tiles
     startx, starty = startxy
     
     mapObjCopy = copy.deepcopy(mapObj)
@@ -254,23 +258,25 @@ def decorateMap(mapObj, startxy):
                    (isWall(mapObjCopy, x+1, y) and isWall(mapObjCopy, x, y+1)) or \
                    (isWall(mapObjCopy, x, y-1) and isWall(mapObjCopy, x - 1, y)) or \
                    (isWall(mapObjCopy, x-1, y) and isWall(mapObjCopy, x , y+1)):
+                   # |_ F _| ¬ 
                    mapObjCopy[x][y] = 'x'
             elif mapObjCopy[x][y] == ' ' and random.randint(0, 99) < OUTSIDE_DECORATION_PCT:
                 mapObjCopy[x][y] = random.choice(list(OUTSIDEDECOMAPPING.keys()))
     return mapObjCopy
-                
+
 def isBlocked(mapObj, gameStateObj, x, y):
     if isWall(mapObj, x,y):
         return True
     elif x < 0 or x >= len(mapObj) or y < 0 or y >= len(mapObj[x]):
         return True # x and y are not on the map
-    elif (x, y) in gameStateObj['stars']:
+    elif (x, y) in gameStateObj['stars']: # if the route is blocked by a star 
         return True
     return False
-
+                
 def makeMove(mapObj, gameStateObj, playerMoveTo):
     playerx, playery = gameStateObj['player']
     stars = gameStateObj['stars']
+    #print(type(stars))
     if playerMoveTo == UP:
         xOffset = 0
         yOffset = -1
@@ -284,7 +290,7 @@ def makeMove(mapObj, gameStateObj, playerMoveTo):
         xOffset = 0
         yOffset = 1
     
-    if isWall(mapObj, playerx + xOffset , playery + yOffset):
+    if isWall(mapObj, playerx + xOffset , playery + yOffset): # no move into a wall
         return False
     else:
         if (playerx + xOffset,playery+yOffset) in stars:
@@ -309,6 +315,7 @@ def startScreen():
                        'Space to reset level, Esc to quit.',
                        'N for next level, B for the previous level.' 
                         ]
+
     DISPLAYSURF.fill(BGCOLOR)
     DISPLAYSURF.blit(IMAGESDICT['title'], titleRect)
     for i in range(len(instructionText)):
@@ -325,7 +332,7 @@ def startScreen():
             if event.type == QUIT:
                 terminate()
             else:
-                if event.type == KEYDOWN:
+                if event.type == KEYUP:
                     if event.key == K_ESCAPE:
                         terminate()
                     return
@@ -404,6 +411,7 @@ def readLevelsFile(filename):
             gameStateObj = {}
             levelNum += 1
     return levels
+
 def floodFill(mapObj, x, y, oldCharacter, newCharacter):
     if mapObj[x][y] == oldCharacter:
         mapObj[x][y] = newCharacter
