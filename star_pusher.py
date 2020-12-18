@@ -342,11 +342,10 @@ def startScreen():
 
 def readLevelsFile(filename):
     assert os.path.exists(filename), f'Cannot find the {filename} file'
-    mapFile = open(filename, 'r')
-    # Each level must end with a blank line
-    content = mapFile.readlines() + ['\r\n']
-    mapFile.close()
-
+    
+    with open(filename, 'r') as mapFile: # open defaults to read mode
+        content = mapFile.readlines() + [os.linesep] # Each level must end with a blank line
+    
     levels = []
     levelNum = 0
     mapTextLines = []
