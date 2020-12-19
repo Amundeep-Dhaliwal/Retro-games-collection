@@ -421,17 +421,38 @@ def readLevelsFile(filename):
     return levels
 
 def floodFill(mapObj, x, y, oldCharacter, newCharacter):
+    spacesToCheck = []
     if mapObj[x][y] == oldCharacter:
+        spacesToCheck.append((x,y))
+    while spacesToCheck != []:
+        x, y = spacesToCheck.pop()
         mapObj[x][y] = newCharacter
+
+        if x < len(mapObj) -1 and mapObj[x + 1][y] == oldCharacter:
+            spacesToCheck.append((x+ 1,y))
+        if x > 0 and mapObj[x-1][y] == oldCharacter:
+            spacesToCheck.append((x-1,y))
+        if y < len(mapObj[x]) and mapObj[x][y+1] == oldCharacter:
+            spacesToCheck.append((x,y+1))
+        if y > 0 and mapObj[x][y-1] == oldCharacter:
+            spacesToCheck.append((x, y -1))
+
+
+
+# def floodFill(mapObj, x, y, oldCharacter, newCharacter): # creates the inside outside floor distinction 
+#     # oldCharacter = ' ' (outdoor floor)
+#     # newCharacter= 'o' (indoor floor)
+#     if mapObj[x][y] == oldCharacter:
+#         mapObj[x][y] = newCharacter
     
-    if x < len(mapObj) - 1 and mapObj[x+1][y] == oldCharacter:
-        floodFill(mapObj, x+ 1, y, oldCharacter, newCharacter) # call right
-    if x > 0 and mapObj[x-1][y] == oldCharacter:
-        floodFill(mapObj, x - 1, y, oldCharacter, newCharacter) # call left
-    if y < len(mapObj[x]) - 1 and mapObj[x][y + 1] == oldCharacter:
-        floodFill(mapObj, x, y + 1, oldCharacter, newCharacter) # call down 
-    if y > 0 and mapObj[x][y - 1] == oldCharacter:
-        floodFill(mapObj, x, y - 1, oldCharacter, newCharacter) # call up
+#     if x < len(mapObj) - 1 and mapObj[x+1][y] == oldCharacter:
+#         floodFill(mapObj, x+ 1, y, oldCharacter, newCharacter) # call right
+#     if x > 0 and mapObj[x-1][y] == oldCharacter:
+#         floodFill(mapObj, x - 1, y, oldCharacter, newCharacter) # call left
+#     if y < len(mapObj[x]) - 1 and mapObj[x][y + 1] == oldCharacter:
+#         floodFill(mapObj, x, y + 1, oldCharacter, newCharacter) # call down 
+#     if y > 0 and mapObj[x][y - 1] == oldCharacter:
+#         floodFill(mapObj, x, y - 1, oldCharacter, newCharacter) # call up
 
 def drawMap(mapObj, gameStateObj, goals):
     mapSurfWidth = len(mapObj)*TILEWID
