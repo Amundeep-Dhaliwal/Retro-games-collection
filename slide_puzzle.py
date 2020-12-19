@@ -88,14 +88,16 @@ def main():
                     
             elif event.type == pygame.KEYUP:
                 # check if the user pressed a key to slide the tile
-                if event.key in (pygame.K_LEFT, pygame.K_a) and isValidMove(mainBoard, LEFT): # notice the 'in' instead of comparison
+                if event.key in (pygame.K_LEFT, pygame.K_s) and isValidMove(mainBoard, LEFT): # notice the 'in' instead of comparison
                     slideTo = LEFT
-                elif event.key in (pygame.K_RIGHT, pygame.K_d) and isValidMove(mainBoard, RIGHT):
+                elif event.key in (pygame.K_RIGHT, pygame.K_f) and isValidMove(mainBoard, RIGHT):
                     slideTo = RIGHT
-                elif event.key in (pygame.K_UP, pygame.K_w) and isValidMove(mainBoard, UP):
+                elif event.key in (pygame.K_UP, pygame.K_e) and isValidMove(mainBoard, UP):
                     slideTo = UP
-                elif event.key in (pygame.K_DOWN, pygame.K_s) and isValidMove(mainBoard, DOWN):
+                elif event.key in (pygame.K_DOWN, pygame.K_d) and isValidMove(mainBoard, DOWN):
                     slideTo = DOWN
+                # if event.key == pygame.K_ESCAPE:
+                #     terminate()
         
         if slideTo:
             slideAnimation(mainBoard, slideTo, 'Moving',8,current_time) # Show slide on screen
