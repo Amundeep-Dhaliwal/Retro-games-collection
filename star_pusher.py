@@ -1,5 +1,6 @@
 import random, sys, pygame, copy, os
 from pygame.locals import *
+from pprint import pprint
 
 # A Sokoban clone
 
@@ -345,17 +346,18 @@ def readLevelsFile(filename):
     
     with open(filename, 'r') as mapFile: # open defaults to read mode
         content = mapFile.readlines() + [os.linesep] # Each level must end with a blank line
-    
+
+    first_level = 1
     levels = []
-    levelNum = 0
-    mapTextLines = []
-    mapObj = []
+    levelNum = 0 # how many levels there are in the text file
+    mapTextLines = [] # for a single map
+    mapObj = [] # 2d object
     for lineNum in range(len(content)):
         line = content[lineNum].rstrip('\r\n')
         if ';' in line:
-            line = line[:line.find(';')]
+            line = line[:line.find(';')] # semicolon and onwards is ignored
         if line != '':
-            # this line is part of the map
+            # as long as the current line is not blank it is part of a map
             mapTextLines.append(line)
         elif line == '' and len(mapTextLines) > 0:
             
@@ -373,28 +375,31 @@ def readLevelsFile(filename):
             for y in range(len(mapTextLines)):
                 for x in range(maxWidth):
                     mapObj[x].append(mapTextLines[y][x])
-            
+            # pprint(mapObj)
             startx = None
             starty = None
             goals = []
             stars = []
             for x in range(maxWidth):
                 for y in range(len(mapObj[x])):
-                    if mapObj[x][y] in ('@','+'):
-                        # @ is the player and + is the player & goal
+                    if mapObj[x][y] in ('@','+'): # get the starting coordinates of the player
+                        # @ is the starting position of the player
+                        # + is the starting position of the player & a goal
                         startx = x
                         starty = y
-                    if mapObj[x][y] in ('.', '+', '*'):
-                        # . is goal and * is star & goal
+                    if mapObj[x][y] in ('.', '+', '*'): # get the coordinates of all the goals
+                        # . is goal 
+                        # * is the star on a goal
                         goals.append((x, y))
-                    if mapObj[x][y] in ('$', '*'):
+                    if mapObj[x][y] in ('$', '*'): # get the coordinates for all the stars
                         # $ is star
                         stars.append((x,y))
+            
             assert startx != None and starty != None, f'Level {levelNum + 1} (around line {lineNum}) in {filename} is missing a "@" or "+" to mark the start point.'
             assert len(goals) > 0, f'Level {levelNum + 1} (around line {lineNum}) in {filename} must have at least one goal.'
             assert len(stars) >= len(goals), f'Level {levelNum + 1} (around line {lineNum}) in {filename} has {len(goals)} goals but only {len(stars)} stars.'
-
-            gameStateObj = {'player':(startx, starty),
+            # allowed to have more stars than goals, but not more goals then stars
+            gameStateObj = {'player':(startx, starty), # contains all the objects that can change 
                             'stepCounter':0, 
                             'stars':stars}
             levelObj = {'width':maxWidth, 
@@ -409,6 +414,10 @@ def readLevelsFile(filename):
             mapObj = []
             gameStateObj = {}
             levelNum += 1
+
+            if bool(first_level):
+                pprint(levels)
+                first_level -= 1 
     return levels
 
 def floodFill(mapObj, x, y, oldCharacter, newCharacter):
