@@ -1,5 +1,6 @@
 import random, sys, pygame, copy, os
 from pygame.locals import *
+from pprint import pprint
 
 # A Sokoban clone
 
@@ -37,7 +38,7 @@ def main():
     DISPLAYSURF = pygame.display.set_mode((WINWID,WINHEI))
 
     pygame.display.set_caption('Star Pusher')
-    BASICFONT = pygame.font.SysFont('freesansbold', 18)
+    BASICFONT = pygame.font.SysFont('freesansbold', 34)
 
     IMAGESDICT ={ 
         'uncovered goal': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\RedSelector.png'),
@@ -227,12 +228,16 @@ def runLevel(levels, levelNum):
 
 def isWall(mapObj, x, y):
     if x < 0 or x >= len(mapObj) or y < 0 or y >= len(mapObj[x]):
-        return False
+    #if (0 < x <= len(mapObj)) or (0 < y <= len(mapObj[x])):
+        return False # x and y are not on the map
     elif mapObj[x][y] in ('#', 'x'):
         return True
     return False
 
 def decorateMap(mapObj, startxy):
+    # walls that are corners are turned into corner pieces
+    # outside/inside tile distinction is made
+    # random tree/rock decorations are placed on the outside tiles
     startx, starty = startxy
     
     mapObjCopy = copy.deepcopy(mapObj)
@@ -254,23 +259,25 @@ def decorateMap(mapObj, startxy):
                    (isWall(mapObjCopy, x+1, y) and isWall(mapObjCopy, x, y+1)) or \
                    (isWall(mapObjCopy, x, y-1) and isWall(mapObjCopy, x - 1, y)) or \
                    (isWall(mapObjCopy, x-1, y) and isWall(mapObjCopy, x , y+1)):
+                   # |_ F _| ¬ 
                    mapObjCopy[x][y] = 'x'
             elif mapObjCopy[x][y] == ' ' and random.randint(0, 99) < OUTSIDE_DECORATION_PCT:
                 mapObjCopy[x][y] = random.choice(list(OUTSIDEDECOMAPPING.keys()))
     return mapObjCopy
-                
+
 def isBlocked(mapObj, gameStateObj, x, y):
     if isWall(mapObj, x,y):
         return True
     elif x < 0 or x >= len(mapObj) or y < 0 or y >= len(mapObj[x]):
         return True # x and y are not on the map
-    elif (x, y) in gameStateObj['stars']:
+    elif (x, y) in gameStateObj['stars']: # if the route is blocked by a star 
         return True
     return False
-
+                
 def makeMove(mapObj, gameStateObj, playerMoveTo):
     playerx, playery = gameStateObj['player']
     stars = gameStateObj['stars']
+    #print(type(stars))
     if playerMoveTo == UP:
         xOffset = 0
         yOffset = -1
@@ -284,7 +291,7 @@ def makeMove(mapObj, gameStateObj, playerMoveTo):
         xOffset = 0
         yOffset = 1
     
-    if isWall(mapObj, playerx + xOffset , playery + yOffset):
+    if isWall(mapObj, playerx + xOffset , playery + yOffset): # no move into a wall
         return False
     else:
         if (playerx + xOffset,playery+yOffset) in stars:
@@ -309,6 +316,7 @@ def startScreen():
                        'Space to reset level, Esc to quit.',
                        'N for next level, B for the previous level.' 
                         ]
+
     DISPLAYSURF.fill(BGCOLOR)
     DISPLAYSURF.blit(IMAGESDICT['title'], titleRect)
     for i in range(len(instructionText)):
@@ -325,7 +333,7 @@ def startScreen():
             if event.type == QUIT:
                 terminate()
             else:
-                if event.type == KEYDOWN:
+                if event.type == KEYUP:
                     if event.key == K_ESCAPE:
                         terminate()
                     return
@@ -335,21 +343,21 @@ def startScreen():
 
 def readLevelsFile(filename):
     assert os.path.exists(filename), f'Cannot find the {filename} file'
-    mapFile = open(filename, 'r')
-    # Each level must end with a blank line
-    content = mapFile.readlines() + ['\r\n']
-    mapFile.close()
+    
+    with open(filename, 'r') as mapFile: # open defaults to read mode
+        content = mapFile.readlines() + [os.linesep] # Each level must end with a blank line
 
+    first_level = 1
     levels = []
-    levelNum = 0
-    mapTextLines = []
-    mapObj = []
+    levelNum = 0 # how many levels there are in the text file
+    mapTextLines = [] # for a single map
+    mapObj = [] # 2d object
     for lineNum in range(len(content)):
         line = content[lineNum].rstrip('\r\n')
         if ';' in line:
-            line = line[:line.find(';')]
+            line = line[:line.find(';')] # semicolon and onwards is ignored
         if line != '':
-            # this line is part of the map
+            # as long as the current line is not blank it is part of a map
             mapTextLines.append(line)
         elif line == '' and len(mapTextLines) > 0:
             
@@ -367,28 +375,31 @@ def readLevelsFile(filename):
             for y in range(len(mapTextLines)):
                 for x in range(maxWidth):
                     mapObj[x].append(mapTextLines[y][x])
-            
+            # pprint(mapObj)
             startx = None
             starty = None
             goals = []
             stars = []
             for x in range(maxWidth):
                 for y in range(len(mapObj[x])):
-                    if mapObj[x][y] in ('@','+'):
-                        # @ is the player and + is the player & goal
+                    if mapObj[x][y] in ('@','+'): # get the starting coordinates of the player
+                        # @ is the starting position of the player
+                        # + is the starting position of the player & a goal
                         startx = x
                         starty = y
-                    if mapObj[x][y] in ('.', '+', '*'):
-                        # . is goal and * is star & goal
+                    if mapObj[x][y] in ('.', '+', '*'): # get the coordinates of all the goals
+                        # . is goal 
+                        # * is the star on a goal
                         goals.append((x, y))
-                    if mapObj[x][y] in ('$', '*'):
+                    if mapObj[x][y] in ('$', '*'): # get the coordinates for all the stars
                         # $ is star
                         stars.append((x,y))
+            
             assert startx != None and starty != None, f'Level {levelNum + 1} (around line {lineNum}) in {filename} is missing a "@" or "+" to mark the start point.'
             assert len(goals) > 0, f'Level {levelNum + 1} (around line {lineNum}) in {filename} must have at least one goal.'
             assert len(stars) >= len(goals), f'Level {levelNum + 1} (around line {lineNum}) in {filename} has {len(goals)} goals but only {len(stars)} stars.'
-
-            gameStateObj = {'player':(startx, starty),
+            # allowed to have more stars than goals, but not more goals then stars
+            gameStateObj = {'player':(startx, starty), # contains all the objects that can change 
                             'stepCounter':0, 
                             'stars':stars}
             levelObj = {'width':maxWidth, 
@@ -403,19 +414,45 @@ def readLevelsFile(filename):
             mapObj = []
             gameStateObj = {}
             levelNum += 1
+
+            if bool(first_level):
+                pprint(levels)
+                first_level -= 1 
     return levels
+
 def floodFill(mapObj, x, y, oldCharacter, newCharacter):
+    spacesToCheck = []
     if mapObj[x][y] == oldCharacter:
+        spacesToCheck.append((x,y))
+    while spacesToCheck != []:
+        x, y = spacesToCheck.pop()
         mapObj[x][y] = newCharacter
+
+        if x < len(mapObj) -1 and mapObj[x + 1][y] == oldCharacter:
+            spacesToCheck.append((x+ 1,y))
+        if x > 0 and mapObj[x-1][y] == oldCharacter:
+            spacesToCheck.append((x-1,y))
+        if y < len(mapObj[x]) and mapObj[x][y+1] == oldCharacter:
+            spacesToCheck.append((x,y+1))
+        if y > 0 and mapObj[x][y-1] == oldCharacter:
+            spacesToCheck.append((x, y -1))
+
+
+
+# def floodFill(mapObj, x, y, oldCharacter, newCharacter): # creates the inside outside floor distinction 
+#     # oldCharacter = ' ' (outdoor floor)
+#     # newCharacter= 'o' (indoor floor)
+#     if mapObj[x][y] == oldCharacter:
+#         mapObj[x][y] = newCharacter
     
-    if x < len(mapObj) - 1 and mapObj[x+1][y] == oldCharacter:
-        floodFill(mapObj, x+ 1, y, oldCharacter, newCharacter) # call right
-    if x > 0 and mapObj[x-1][y] == oldCharacter:
-        floodFill(mapObj, x - 1, y, oldCharacter, newCharacter) # call left
-    if y < len(mapObj[x]) - 1 and mapObj[x][y + 1] == oldCharacter:
-        floodFill(mapObj, x, y + 1, oldCharacter, newCharacter) # call down 
-    if y > 0 and mapObj[x][y - 1] == oldCharacter:
-        floodFill(mapObj, x, y - 1, oldCharacter, newCharacter) # call up
+#     if x < len(mapObj) - 1 and mapObj[x+1][y] == oldCharacter:
+#         floodFill(mapObj, x+ 1, y, oldCharacter, newCharacter) # call right
+#     if x > 0 and mapObj[x-1][y] == oldCharacter:
+#         floodFill(mapObj, x - 1, y, oldCharacter, newCharacter) # call left
+#     if y < len(mapObj[x]) - 1 and mapObj[x][y + 1] == oldCharacter:
+#         floodFill(mapObj, x, y + 1, oldCharacter, newCharacter) # call down 
+#     if y > 0 and mapObj[x][y - 1] == oldCharacter:
+#         floodFill(mapObj, x, y - 1, oldCharacter, newCharacter) # call up
 
 def drawMap(mapObj, gameStateObj, goals):
     mapSurfWidth = len(mapObj)*TILEWID
