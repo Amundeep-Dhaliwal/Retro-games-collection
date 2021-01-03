@@ -1,12 +1,8 @@
 *.ipynb
 
-*.cfg
+/testing
 
-Scripts/
+/games_collection
 
-Lib/
-
-site-packages/
-
-/Include
+/.vscode
 
