@@ -29,6 +29,29 @@ DOWN = 'down'
 LEFT = 'left'
 RIGHT = 'right'
 
+ASSETS_PATH = os.path.join(os.getcwd(), 'assets',os.path.basename(__file__).split('.')[0])
+
+GAME_SPRITES = [
+    'uncovered_goal',
+    'covered_goal',
+    'star',
+    'corner_block',
+    'wall_block', 
+    'inside_floor', 
+    'outside_floor',
+    'star_title',
+    'star_solved',
+    'princess',
+    'boy',
+    'catgirl',
+    'horngirl',
+    'pinkgirl',
+    'rock',
+    'short_tree',
+    'tall_tree',
+    'ugly_tree'
+    ]
+
 def main():
     global FPSCLOCK, DISPLAYSURF, IMAGESDICT, TILEMAPPING, OUTSIDEDECOMAPPING, BASICFONT, PLAYERIMAGES, currentImage
 
@@ -40,39 +63,23 @@ def main():
     pygame.display.set_caption('Star Pusher')
     BASICFONT = pygame.font.SysFont('freesansbold', 34)
 
-    IMAGESDICT ={ 
-        'uncovered goal': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\RedSelector.png'),
-        'covered goal': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Selector.png'),
-        'star':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Star.png'),
-        'corner': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Wall_Block_Tall.png'),
-        'wall':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Wood_Block_Tall.png'),
-        'inside floor':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Plain_Block.png'),
-        'outside floor':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Grass_Block.png'),
-        'title':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\star_title.png'),
-        'solved':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\star_solved.png'),
-        'princess':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\princess.png'),
-        'boy':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\boy.png'),
-        'catgirl':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\catgirl.png'),
-        'horngirl':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\horngirl.png'),
-        'pinkgirl':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\pinkgirl.png'),
-        'rock':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Rock.png'),
-        'short tree':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Tree_Short.png'),
-        'tall tree':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Tree_Tall.png'),
-        'ugly tree':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Tree_Ugly.png'),
-    }
+    
+    IMAGESDICT = {}
+    for image in GAME_SPRITES:
+        IMAGESDICT[image] = pygame.image.load(os.path.join(ASSETS_PATH, image + '.png'))
 
     TILEMAPPING = {
-        'x':IMAGESDICT['corner'],
-        '#':IMAGESDICT['wall'],
-        'o':IMAGESDICT['inside floor'],
-        ' ':IMAGESDICT['outside floor'],
+        'x':IMAGESDICT['corner_block'],
+        '#':IMAGESDICT['wall_block'],
+        'o':IMAGESDICT['inside_floor'],
+        ' ':IMAGESDICT['outside_floor'],
     }
 
     OUTSIDEDECOMAPPING = {
         '1': IMAGESDICT['rock'],
-        '2': IMAGESDICT['short tree'],
-        '3': IMAGESDICT['tall tree'], 
-        '4': IMAGESDICT['ugly tree'],
+        '2': IMAGESDICT['short_tree'],
+        '3': IMAGESDICT['tall_tree'], 
+        '4': IMAGESDICT['ugly_tree'],
     }
 
     currentImage = 0
@@ -86,7 +93,7 @@ def main():
 
     startScreen()
 
-    levels = readLevelsFile('starPusherLevels.txt')
+    levels = readLevelsFile(os.path.join(ASSETS_PATH, 'starPusherLevels.txt'))
     currentLevelIndex = 0
     
     while True:
@@ -216,9 +223,9 @@ def runLevel(levels, levelNum):
         DISPLAYSURF.blit(stepSurf, stepRect)
 
         if levelIsComplete:
-            solvedRect = IMAGESDICT['solved'].get_rect()
+            solvedRect = IMAGESDICT['star_solved'].get_rect()
             solvedRect.center = (HALF_WINWID, HALF_WINHEI)
-            DISPLAYSURF.blit(IMAGESDICT['solved'], solvedRect)
+            DISPLAYSURF.blit(IMAGESDICT['star_solved'], solvedRect)
 
             if keyPressed:
                 return 'solved'
@@ -305,7 +312,7 @@ def makeMove(mapObj, gameStateObj, playerMoveTo):
         return True
 
 def startScreen():
-    titleRect = IMAGESDICT['title'].get_rect()
+    titleRect = IMAGESDICT['star_title'].get_rect()
     topCoord = 50
     titleRect.top = topCoord
     titleRect.centerx = HALF_WINWID
@@ -318,7 +325,7 @@ def startScreen():
                         ]
 
     DISPLAYSURF.fill(BGCOLOR)
-    DISPLAYSURF.blit(IMAGESDICT['title'], titleRect)
+    DISPLAYSURF.blit(IMAGESDICT['star_title'], titleRect)
     for i in range(len(instructionText)):
         instSurf = BASICFONT.render(instructionText[i], 1, TEXTCOLOR)
         instRect = instSurf.get_rect()
@@ -474,10 +481,10 @@ def drawMap(mapObj, gameStateObj, goals):
                 mapSurf.blit(OUTSIDEDECOMAPPING[mapObj[x][y]], spaceRect)                
             elif (x,y) in gameStateObj['stars']:
                 if (x, y) in goals:
-                    mapSurf.blit(IMAGESDICT['covered goal'], spaceRect)
+                    mapSurf.blit(IMAGESDICT['covered_goal'], spaceRect)
                 mapSurf.blit(IMAGESDICT['star'], spaceRect)
             elif (x, y) in goals:
-                mapSurf.blit(IMAGESDICT['uncovered goal'], spaceRect)
+                mapSurf.blit(IMAGESDICT['uncovered_goal'], spaceRect)
             if (x, y) == gameStateObj['player']:
                 mapSurf.blit(PLAYERIMAGES[currentImage], spaceRect)
 
@@ -495,5 +502,6 @@ def terminate():
 
 if __name__ == '__main__':
     main()
+
 
 
