@@ -501,7 +501,5 @@ def terminate():
     sys.exit()
 
 if __name__ == '__main__':
-    main()
-
-
-
+    #main()
+    print(os.path.dirname(__file__))
