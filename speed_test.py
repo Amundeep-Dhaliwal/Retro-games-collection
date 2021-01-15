@@ -1,11 +1,16 @@
-import pygame, sys, time, random
+import pygame, sys, time, random, os
+from pprint import pprint
+
+FILE_NAME = os.path.splitext(os.path.basename(__file__))[0]
+ASSETS_DIRECTORY = os.path.join(os.getcwd(), 'assets', FILE_NAME)
 
 class Game(object):
     def __init__(self):
         self.width = 750
         self.height = 500
-        self.reset = True
-        self.active = False
+        # self.reset = True
+        self.active = True
+        self.end = False
         self.input_text = ''
         self.word = ''
         self.time_start = 0
@@ -13,17 +18,16 @@ class Game(object):
         self.accuracy = '0%'
         self.results = 'Time: 0 Accuracy: 0 % Words per minute: 0'
         self.wpm = 0
-        self.end = False
         self.HEAD_C = (255,213,102)
         self.TEXT_C = (240,240,240)
         self.RESULT_C = (255,70,70)
 
         pygame.init()
-        self.open_img  = pygame.transform.scale(pygame.image.load(r"C:\Users\Amundeep\Pictures\Camera Roll\type-speed-open.png"), (self.width, self.height))
+        #self.open_img  = pygame.transform.scale(pygame.image.load(r"C:\Users\Amundeep\Pictures\Camera Roll\type-speed-open.png"), (self.width, self.height))
 
-        self.background = pygame.image.load(r"C:\Users\Amundeep\Pictures\Camera Roll\wood_background.png")
-        self.background = pygame.transform.scale(self.background, (self.width,self.height))
+        self.background = pygame.image.load(os.path.join(ASSETS_DIRECTORY, 'black_wood.jpg'))
         self.SCREEN = pygame.display.set_mode((self.width, self.height))
+        self.background = pygame.transform.scale(self.background, (self.width,self.height))
         pygame.display.set_caption('Typing speed test')
 
     def drawText(self, SCREEN, msg, y, fontsize, color):
@@ -34,9 +38,12 @@ class Game(object):
         pygame.display.update()
     
     def getSentence(self):
-        file = open(r"C:\Users\Amundeep\Documents\Amundeep Singh Dhaliwal\Coding\Useful programs\Incomplete\The_Ultimate_Games_Collection\speed_phrases.txt").read()
-        sentences = file.split('\n')
-        return random.choice(sentences)
+        phrases_path = os.path.join(ASSETS_DIRECTORY, FILE_NAME + '.txt')
+        lines = []
+        with open(phrases_path) as phrases:
+            lines = [line.strip() for line in phrases.readlines()]
+    
+        return random.choice(lines)
     
     def showResult(self, SCREEN):
         if not self.end:
@@ -57,7 +64,7 @@ class Game(object):
 
             self.results = 'Time: ' + str(round(self.total_time)) + ' seconds. Accuracy: '+ str(round(self.accuracy))+ '%, Words per minute: '+ str(round(self.wpm))
 
-            self.time_img = pygame.transform.scale(pygame.image.load(r"C:\Users\Amundeep\Pictures\Camera Roll\icon.png"), (150,150))
+            self.time_img = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS_DIRECTORY, 'icon.png')), (150,150))
             SCREEN.blit(self.time_img, (self.width/2 - 75, self.height - 140))
             self.drawText(SCREEN, "Reset", self.height-70, 26,(100,100,100))
 
@@ -106,11 +113,11 @@ class Game(object):
                                 self.input_text += event.unicode
                             except:
                                 pass
-            FPSCLOCK.tick(60)
+            FPSCLOCK.tick(30)
             pygame.display.update()
         
     def resetGame(self):
-        self.SCREEN.blit(self.open_img, (0,0))
+        #self.SCREEN.blit(self.open_img, (0,0))
 
         self.reset = False
         self.end = False
@@ -133,4 +140,6 @@ class Game(object):
 
         pygame.display.update()
 
-Game().run()
+
+if __name__ == '__main__':
+    Game().run()
