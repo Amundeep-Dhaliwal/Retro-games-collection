@@ -4,6 +4,7 @@ assigns
 process
 initialized
 exponentially
+approximately
 occupy
 consecutive
 saviour
@@ -47,3 +48,12 @@ retrieve
 receive
 point
 obfuscated
+achieve
+believe
+necessary
+asynchronous
+corresponding
+In geometry, a normal is a line that is perpendicular to a given object
+The minor sector is a pizza slice, the major sector is the remaining pizza
+An arc is part of the circumference
+Segments are made when a straight line divides a circle into two parts
