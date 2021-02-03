@@ -40,6 +40,10 @@ onomatopoeia
 specifier
 referred
 recessive
+continuously
+acquired
+identified
+A commutator reverses the magnetic field of the wire every half rotation 
 maintain
 maintenance
 resilience
