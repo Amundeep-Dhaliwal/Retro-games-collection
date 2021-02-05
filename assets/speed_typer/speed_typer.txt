@@ -27,10 +27,13 @@ pronunciation
 ingenious
 nauseous
 sacrilegious
+The dividend divided by the divisor gives the quotient
+When the second derivative is positive, the graph has a minimum point
+When the second derivative is negative, the graph has a maximum point
 randomly
 dandelion
-pupil dilates
-pupil constricts
+The pupil dilates in low light situations
+The pupil constricts in bright light situtions
 accommodate
 mischievous
 acquaintance
@@ -54,6 +57,7 @@ point
 obfuscated
 achieve
 believe
+unnecessary
 necessary
 asynchronous
 corresponding
