@@ -1,3 +1,5 @@
+One one trillionth of a meter is a pico meter
+One one quadrillionth of a meter is a femto meter
 addresses
 allocation
 assigns
@@ -14,6 +16,11 @@ underlying
 libraries
 pangrams
 isogram
+An anagram is formed by rearranging the letters of a different word or phrase
+Short sightedness, referred to as myopia, occurs when light rays are focused infront of the retina
+Long sightedness, referred to as hyperopia, occurs when light rays are focused behind the retina
+Myopia is a result of the eyeball becoming too long
+Hyperopia is a result of the eyeball becoming too short
 inconceivable
 parenthesis
 eloquent
@@ -26,6 +33,7 @@ liquefy
 pronunciation
 ingenious
 nauseous
+cauterize
 sacrilegious
 The dividend divided by the divisor gives the quotient
 When the second derivative is positive, the graph has a minimum point
