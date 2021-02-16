@@ -13,6 +13,9 @@ saviour
 queue
 substantially
 underlying
+palette
+satellite
+altitude
 libraries
 pangrams
 isogram
@@ -49,6 +52,7 @@ conscientious
 conscious
 onomatopoeia
 specifier
+Thermal transmittance is also expressed as the U value, the lower the U value, the better the insulator.
 referred
 recessive
 continuously

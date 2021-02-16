@@ -463,12 +463,13 @@ def floodFill(mapObj, x, y, oldCharacter, newCharacter): # creates the inside ou
 def drawMap(mapObj, gameStateObj, goals):
     mapSurfWidth = len(mapObj)*TILEWID
     mapSurfHeight = (len(mapObj[0]) - 1) * (TILEHEI - TILEFLOORHEI) + TILEHEI
+    #mapSurfHeight = (len(mapObj[0]) - 1) * TILEHEI
     mapSurf = pygame.Surface((mapSurfWidth, mapSurfHeight))
     mapSurf.fill(BGCOLOR)
 
     for x in range(len(mapObj)):
         for y in range(len(mapObj[x])):
-            spaceRect = pygame.Rect((x * TILEWID, y * (TILEHEI - TILEFLOORHEI), TILEWID, TILEHEI))
+            spaceRect = pygame.Rect((x * TILEWID, (y * (TILEHEI - TILEFLOORHEI)), TILEWID, TILEHEI))
             if mapObj[x][y] in TILEMAPPING:
                 baseTile = TILEMAPPING[mapObj[x][y]]
             elif mapObj[x][y] in OUTSIDEDECOMAPPING:
@@ -478,9 +479,9 @@ def drawMap(mapObj, gameStateObj, goals):
 
             if mapObj[x][y] in OUTSIDEDECOMAPPING:
                 mapSurf.blit(OUTSIDEDECOMAPPING[mapObj[x][y]], spaceRect)                
-            elif (x,y) in gameStateObj['stars']:
+            if (x,y) in gameStateObj['stars']:
                 if (x, y) in goals:
-                    mapSurf.blit(IMAGESDICT['covered_goal'], spaceRect)
+                    mapSurf.blit(IMAGESDICT['covered_goal'], spaceRect) # covered goal needs to be drawn first
                 mapSurf.blit(IMAGESDICT['star'], spaceRect)
             elif (x, y) in goals:
                 mapSurf.blit(IMAGESDICT['uncovered_goal'], spaceRect)
@@ -500,5 +501,5 @@ def terminate():
     sys.exit()
 
 if __name__ == '__main__':
-    #main()
-    print(os.path.dirname(__file__))
+    main()
+    #print(os.path.dirname(__file__))
