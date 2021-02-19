@@ -4,8 +4,9 @@ addresses
 allocation
 assigns
 process
-initialized
+First a variable is declared and then it is initialized
 exponentially
+occurrence
 approximately
 occupy
 consecutive
@@ -21,10 +22,14 @@ pangrams
 isogram
 An anagram is formed by rearranging the letters of a different word or phrase
 Short sightedness, referred to as myopia, occurs when light rays are focused infront of the retina
-Long sightedness, referred to as hyperopia, occurs when light rays are focused behind the retina
 Myopia is a result of the eyeball becoming too long
+A diverging lens can be used to correct short sightedness
+Long sightedness, referred to as hyperopia, occurs when light rays are focused behind the retina
 Hyperopia is a result of the eyeball becoming too short
+A convex lens can be used to correct long sightedness
 inconceivable
+The addend is a number which is added to another
+The augend is a number to which is added to another
 parenthesis
 eloquent
 colleagues
