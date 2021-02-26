@@ -4,8 +4,8 @@ from pprint import pprint
 FILE_NAME = os.path.splitext(os.path.basename(__file__))[0]
 ASSETS_DIRECTORY = os.path.join(os.getcwd(), 'assets', FILE_NAME)
 
-SCREEN_WIDTH = 750
-SCREEN_HEIGHT = 500
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 400
 FRAMES_PER_SECOND = 30
 
 HEADING_SIZE = 50
@@ -86,7 +86,7 @@ class Typing:
         pygame.draw.rect(self.screen,BOX_OUTLINE_COLOR, text_field, width = 2)
         
         if isinstance(self.statistics_string, str):
-            self.draw_text(self.statistics_string, 400, RESULT_COLOR)
+            self.draw_text(self.statistics_string, 300, RESULT_COLOR)
             reset_string = 'Reset by pressing enter'
             self.draw_text(reset_string, 450, RESULT_COLOR)
 
