@@ -8,7 +8,9 @@ First a variable is declared and then it is initialized
 exponentially
 occurrence
 approximately
+appropriately
 occupy
+One mole of gas at room temperature and pressure occupies 24 cubic decimeters.
 consecutive
 saviour
 queue
@@ -29,25 +31,35 @@ A diverging lens can be used to correct short sightedness
 Long sightedness, referred to as hyperopia, occurs when light rays are focused behind the retina
 Hyperopia is a result of the eyeball becoming too short
 A convex lens can be used to correct long sightedness
+The power of a lens is affected by the refractive index of the material and the curvature.
 inconceivable
 The addend is a number which is added to another
 The augend is a number to which is added to another
 parenthesis
 eloquent
 colleagues
-parallel
+In a series circuit the current is the same at any point.
+In a series circuit the voltage is split over each component.
+In a parallel circuit the voltage is the same across each "strand".
+In a parallel circuit the current splits up over each "strand".
 characterized
 Every plane mirror forms a virtual image
 The real image produced by a concave mirror is inverted
+Power outlet pins are consist of brass and can be coated with nickel.
 meddler
 miscellaneous
 minuscule
 liquefy
 pronunciation
 ingenious
+opinion
+Magnetic elements include iron, nickel and cobalt.
 nauseous
 emitting
 cauterize
+Polarized light waves have their vibrations occuring in a single plane.
+scenarios
+assembly
 sacrilegious
 The dividend divided by the divisor gives the quotient
 When the second derivative is positive, the graph has a minimum point
@@ -59,6 +71,7 @@ The pupil constricts in bright light situtions
 accommodate
 mischievous
 acquaintance
+substitution
 conscientious
 conscious
 onomatopoeia
@@ -76,7 +89,6 @@ resilience
 malicious
 retrieve
 receive
-point
 obfuscated
 achieve
 believe
