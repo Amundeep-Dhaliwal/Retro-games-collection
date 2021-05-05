@@ -1,7 +1,9 @@
 One one trillionth of a meter is a pico meter
 One one quadrillionth of a meter is a femto meter
+Pythagoras developed the pythagorean theorem.
 addresses
 allocation
+atrocious
 assigns
 process
 First a variable is declared and then it is initialized
@@ -14,6 +16,7 @@ One mole of gas at room temperature and pressure occupies 24 cubic decimeters.
 consecutive
 saviour
 queue
+encouraging
 substantially
 underlying
 palette
@@ -21,15 +24,15 @@ hierarchical
 beginning
 satellite
 altitude
-libraries
-pangrams
-isogram
+A pangram is a sentence that uses all the characters of the english alphabet at least once.
+An isogram is a word that does not have any repeating letters.
 An anagram is formed by rearranging the letters of a different word or phrase
+libraries
 Short sightedness, referred to as myopia, occurs when light rays are focused infront of the retina
-Myopia is a result of the eyeball becoming too long
+Short sightedness is a result of the eyeball becoming too long
 A diverging lens can be used to correct short sightedness
 Long sightedness, referred to as hyperopia, occurs when light rays are focused behind the retina
-Hyperopia is a result of the eyeball becoming too short
+Long sightedness is a result of the eyeball becoming too short
 A convex lens can be used to correct long sightedness
 The power of a lens is affected by the refractive index of the material and the curvature.
 inconceivable
@@ -37,21 +40,31 @@ The addend is a number which is added to another
 The augend is a number to which is added to another
 parenthesis
 eloquent
+delved
+succeeded
+successfully
+surprisingly
 colleagues
 In a series circuit the current is the same at any point.
 In a series circuit the voltage is split over each component.
 In a parallel circuit the voltage is the same across each "strand".
 In a parallel circuit the current splits up over each "strand".
-characterized
+characterized or characteristic
 Every plane mirror forms a virtual image
 The real image produced by a concave mirror is inverted
 Power outlet pins are consist of brass and can be coated with nickel.
 meddler
 miscellaneous
+The council was overzealous!
+The drag force is dependent on the speed, size and shape of the object as well as the density, viscosity and compressibility of the fluid.
 minuscule
 liquefy
 pronunciation
+The solubility of group 2 metal hydroxides goes up as you go down the group.
+The solubility of group 2 sulphates and carbonates goes down as you go down the group.
+ambiguous
 ingenious
+administered
 opinion
 Magnetic elements include iron, nickel and cobalt.
 nauseous
@@ -62,8 +75,10 @@ scenarios
 assembly
 sacrilegious
 The dividend divided by the divisor gives the quotient
-When the second derivative is positive, the graph has a minimum point
-When the second derivative is negative, the graph has a maximum point
+When the second derivative is positive, the graph has a minimum point.
+The graph is convex if the second derivative is greater than or equal to zero.
+When the second derivative is negative, the graph has a maximum point.
+The graph is concave if the second derivative is less than or equal to zero.
 randomly
 dandelion
 The pupil dilates in low light situations
@@ -71,6 +86,7 @@ The pupil constricts in bright light situtions
 accommodate
 mischievous
 acquaintance
+Schiff's reagent is used to test for aldehydes, purple indicates a positive result
 substitution
 conscientious
 conscious
@@ -80,17 +96,24 @@ Thermal transmittance is also expressed as the U value, the lower the U value, t
 referred
 recessive
 continuously
+Tendons are fibrous connective tissue that attaches muscle to bone
+Ligaments are fibrous connective tissue that attaches bone to bone
 acquired
 identified
+The centripetal force makes the body follow a curved path
+friction provides the centripetal force
+scientist names and discoveries
 A commutator reverses the magnetic field of the wire every half rotation 
 maintain
 maintenance
 resilience
+famous
 malicious
 retrieve
 receive
 obfuscated
 achieve
+stoichiometry
 believe
 unnecessary
 necessary
