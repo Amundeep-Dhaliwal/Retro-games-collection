@@ -29,6 +29,29 @@ DOWN = 'down'
 LEFT = 'left'
 RIGHT = 'right'
 
+ASSETS_PATH = os.path.join(os.getcwd(), 'assets',os.path.basename(__file__).split('.')[0])
+
+GAME_SPRITES = [
+    'uncovered_goal',
+    'covered_goal',
+    'star',
+    'corner_block',
+    'wall_block', 
+    'inside_floor', 
+    'outside_floor',
+    'star_title',
+    'star_solved',
+    'princess',
+    'boy',
+    'catgirl',
+    'horngirl',
+    'pinkgirl',
+    'rock',
+    'short_tree',
+    'tall_tree',
+    'ugly_tree'
+    ]
+
 def main():
     global FPSCLOCK, DISPLAYSURF, IMAGESDICT, TILEMAPPING, OUTSIDEDECOMAPPING, BASICFONT, PLAYERIMAGES, currentImage
 
@@ -40,39 +63,23 @@ def main():
     pygame.display.set_caption('Star Pusher')
     BASICFONT = pygame.font.SysFont('freesansbold', 34)
 
-    IMAGESDICT ={ 
-        'uncovered goal': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\RedSelector.png'),
-        'covered goal': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Selector.png'),
-        'star':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Star.png'),
-        'corner': pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Wall_Block_Tall.png'),
-        'wall':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Wood_Block_Tall.png'),
-        'inside floor':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Plain_Block.png'),
-        'outside floor':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Grass_Block.png'),
-        'title':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\star_title.png'),
-        'solved':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\star_solved.png'),
-        'princess':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\princess.png'),
-        'boy':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\boy.png'),
-        'catgirl':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\catgirl.png'),
-        'horngirl':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\horngirl.png'),
-        'pinkgirl':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\pinkgirl.png'),
-        'rock':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Rock.png'),
-        'short tree':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Tree_Short.png'),
-        'tall tree':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Tree_Tall.png'),
-        'ugly tree':pygame.image.load(r'C:\Users\Amundeep\Pictures\Camera Roll\Tree_Ugly.png'),
-    }
+    
+    IMAGESDICT = {}
+    for image in GAME_SPRITES:
+        IMAGESDICT[image] = pygame.image.load(os.path.join(ASSETS_PATH, image + '.png'))
 
     TILEMAPPING = {
-        'x':IMAGESDICT['corner'],
-        '#':IMAGESDICT['wall'],
-        'o':IMAGESDICT['inside floor'],
-        ' ':IMAGESDICT['outside floor'],
+        'x':IMAGESDICT['corner_block'],
+        '#':IMAGESDICT['wall_block'],
+        'o':IMAGESDICT['inside_floor'],
+        ' ':IMAGESDICT['outside_floor'],
     }
 
     OUTSIDEDECOMAPPING = {
         '1': IMAGESDICT['rock'],
-        '2': IMAGESDICT['short tree'],
-        '3': IMAGESDICT['tall tree'], 
-        '4': IMAGESDICT['ugly tree'],
+        '2': IMAGESDICT['short_tree'],
+        '3': IMAGESDICT['tall_tree'], 
+        '4': IMAGESDICT['ugly_tree'],
     }
 
     currentImage = 0
@@ -86,7 +93,7 @@ def main():
 
     startScreen()
 
-    levels = readLevelsFile('starPusherLevels.txt')
+    levels = readLevelsFile(os.path.join(ASSETS_PATH, 'starPusherLevels.txt'))
     currentLevelIndex = 0
     
     while True:
@@ -216,9 +223,9 @@ def runLevel(levels, levelNum):
         DISPLAYSURF.blit(stepSurf, stepRect)
 
         if levelIsComplete:
-            solvedRect = IMAGESDICT['solved'].get_rect()
+            solvedRect = IMAGESDICT['star_solved'].get_rect()
             solvedRect.center = (HALF_WINWID, HALF_WINHEI)
-            DISPLAYSURF.blit(IMAGESDICT['solved'], solvedRect)
+            DISPLAYSURF.blit(IMAGESDICT['star_solved'], solvedRect)
 
             if keyPressed:
                 return 'solved'
@@ -253,7 +260,6 @@ def decorateMap(mapObj, startxy):
     # convert the adjoined walls into corner tiles
     for x in range(len(mapObjCopy)):
         for y in range(len(mapObjCopy[0])):
-
             if mapObjCopy[x][y] == '#':
                 if (isWall(mapObjCopy, x, y-1) and isWall(mapObjCopy, x + 1, y)) or \
                    (isWall(mapObjCopy, x+1, y) and isWall(mapObjCopy, x, y+1)) or \
@@ -305,7 +311,7 @@ def makeMove(mapObj, gameStateObj, playerMoveTo):
         return True
 
 def startScreen():
-    titleRect = IMAGESDICT['title'].get_rect()
+    titleRect = IMAGESDICT['star_title'].get_rect()
     topCoord = 50
     titleRect.top = topCoord
     titleRect.centerx = HALF_WINWID
@@ -318,7 +324,7 @@ def startScreen():
                         ]
 
     DISPLAYSURF.fill(BGCOLOR)
-    DISPLAYSURF.blit(IMAGESDICT['title'], titleRect)
+    DISPLAYSURF.blit(IMAGESDICT['star_title'], titleRect)
     for i in range(len(instructionText)):
         instSurf = BASICFONT.render(instructionText[i], 1, TEXTCOLOR)
         instRect = instSurf.get_rect()
@@ -420,49 +426,50 @@ def readLevelsFile(filename):
                 first_level -= 1 
     return levels
 
-def floodFill(mapObj, x, y, oldCharacter, newCharacter):
-    spacesToCheck = []
-    if mapObj[x][y] == oldCharacter:
-        spacesToCheck.append((x,y))
-    while spacesToCheck != []:
-        x, y = spacesToCheck.pop()
-        mapObj[x][y] = newCharacter
-
-        if x < len(mapObj) -1 and mapObj[x + 1][y] == oldCharacter:
-            spacesToCheck.append((x+ 1,y))
-        if x > 0 and mapObj[x-1][y] == oldCharacter:
-            spacesToCheck.append((x-1,y))
-        if y < len(mapObj[x]) and mapObj[x][y+1] == oldCharacter:
-            spacesToCheck.append((x,y+1))
-        if y > 0 and mapObj[x][y-1] == oldCharacter:
-            spacesToCheck.append((x, y -1))
-
-
-
-# def floodFill(mapObj, x, y, oldCharacter, newCharacter): # creates the inside outside floor distinction 
-#     # oldCharacter = ' ' (outdoor floor)
-#     # newCharacter= 'o' (indoor floor)
+# def floodFill(mapObj, x, y, oldCharacter, newCharacter):
+#     spacesToCheck = []
 #     if mapObj[x][y] == oldCharacter:
+#         spacesToCheck.append((x,y))
+#     while spacesToCheck != []:
+#         x, y = spacesToCheck.pop()
 #         mapObj[x][y] = newCharacter
+
+#         if x < len(mapObj) -1 and mapObj[x + 1][y] == oldCharacter:
+#             spacesToCheck.append((x+ 1,y))
+#         if x > 0 and mapObj[x-1][y] == oldCharacter:
+#             spacesToCheck.append((x-1,y))
+#         if y < len(mapObj[x]) and mapObj[x][y+1] == oldCharacter:
+#             spacesToCheck.append((x,y+1))
+#         if y > 0 and mapObj[x][y-1] == oldCharacter:
+#             spacesToCheck.append((x, y -1))
+
+
+
+def floodFill(mapObj, x, y, oldCharacter, newCharacter): # creates the inside outside floor distinction 
+    # oldCharacter = ' ' (outdoor floor)
+    # newCharacter= 'o' (indoor floor)
+    if mapObj[x][y] == oldCharacter:
+        mapObj[x][y] = newCharacter
     
-#     if x < len(mapObj) - 1 and mapObj[x+1][y] == oldCharacter:
-#         floodFill(mapObj, x+ 1, y, oldCharacter, newCharacter) # call right
-#     if x > 0 and mapObj[x-1][y] == oldCharacter:
-#         floodFill(mapObj, x - 1, y, oldCharacter, newCharacter) # call left
-#     if y < len(mapObj[x]) - 1 and mapObj[x][y + 1] == oldCharacter:
-#         floodFill(mapObj, x, y + 1, oldCharacter, newCharacter) # call down 
-#     if y > 0 and mapObj[x][y - 1] == oldCharacter:
-#         floodFill(mapObj, x, y - 1, oldCharacter, newCharacter) # call up
+    if x < len(mapObj) - 1 and mapObj[x+1][y] == oldCharacter:
+        floodFill(mapObj, x+ 1, y, oldCharacter, newCharacter) # call right
+    if x > 0 and mapObj[x-1][y] == oldCharacter:
+        floodFill(mapObj, x - 1, y, oldCharacter, newCharacter) # call left
+    if y < len(mapObj[x]) - 1 and mapObj[x][y + 1] == oldCharacter:
+        floodFill(mapObj, x, y + 1, oldCharacter, newCharacter) # call down 
+    if y > 0 and mapObj[x][y - 1] == oldCharacter:
+        floodFill(mapObj, x, y - 1, oldCharacter, newCharacter) # call up
 
 def drawMap(mapObj, gameStateObj, goals):
     mapSurfWidth = len(mapObj)*TILEWID
     mapSurfHeight = (len(mapObj[0]) - 1) * (TILEHEI - TILEFLOORHEI) + TILEHEI
+    #mapSurfHeight = (len(mapObj[0]) - 1) * TILEHEI
     mapSurf = pygame.Surface((mapSurfWidth, mapSurfHeight))
     mapSurf.fill(BGCOLOR)
 
     for x in range(len(mapObj)):
         for y in range(len(mapObj[x])):
-            spaceRect = pygame.Rect((x * TILEWID, y * (TILEHEI - TILEFLOORHEI), TILEWID, TILEHEI))
+            spaceRect = pygame.Rect((x * TILEWID, (y * (TILEHEI - TILEFLOORHEI)), TILEWID, TILEHEI))
             if mapObj[x][y] in TILEMAPPING:
                 baseTile = TILEMAPPING[mapObj[x][y]]
             elif mapObj[x][y] in OUTSIDEDECOMAPPING:
@@ -472,12 +479,12 @@ def drawMap(mapObj, gameStateObj, goals):
 
             if mapObj[x][y] in OUTSIDEDECOMAPPING:
                 mapSurf.blit(OUTSIDEDECOMAPPING[mapObj[x][y]], spaceRect)                
-            elif (x,y) in gameStateObj['stars']:
+            if (x,y) in gameStateObj['stars']:
                 if (x, y) in goals:
-                    mapSurf.blit(IMAGESDICT['covered goal'], spaceRect)
+                    mapSurf.blit(IMAGESDICT['covered_goal'], spaceRect) # covered goal needs to be drawn first
                 mapSurf.blit(IMAGESDICT['star'], spaceRect)
             elif (x, y) in goals:
-                mapSurf.blit(IMAGESDICT['uncovered goal'], spaceRect)
+                mapSurf.blit(IMAGESDICT['uncovered_goal'], spaceRect)
             if (x, y) == gameStateObj['player']:
                 mapSurf.blit(PLAYERIMAGES[currentImage], spaceRect)
 
@@ -495,5 +502,4 @@ def terminate():
 
 if __name__ == '__main__':
     main()
-
-
+    #print(os.path.dirname(__file__))
