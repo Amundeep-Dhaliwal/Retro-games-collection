@@ -67,3 +67,10 @@ This project would not be where is today without the help of the following amazi
 -Al Sweigart (I recommend his book on inventing games with pygame)
 -Tim Ruscica 
 -Countless members of the Stack Overflow community
+
+Working
+star_pusher.py
+slide_puzzle.py
+memory_puzzle.py
+
+> games_collection/Scripts/Activate.ps1
