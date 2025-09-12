@@ -5,7 +5,7 @@ windowwidth, windowheight = 640, 480
 boardwidth, boardheight = 4,4 # boardwidth = number of columns, boardheight = number of rows 
 TILESIZE = 80
 FPS = 30
-TILESLIDES = 60
+TILESLIDES = 60 
 
 BLACK =         (0,0,0)
 WHITE =         (255,255,255)

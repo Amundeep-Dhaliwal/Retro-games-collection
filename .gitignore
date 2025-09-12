@@ -3,5 +3,6 @@
 /testing
 
 /virtual_environment
+.python-version
 
 /.vscode
